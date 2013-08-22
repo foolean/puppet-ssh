@@ -1,0 +1,22 @@
+# Configuration file for the <%= sshd_name %><%= suffix %> service.
+
+# The server keys are automatically generated if they ommited
+# to change the automatic creation uncomment the approprite
+# line.
+
+# AUTOCREATE_SERVER_KEYS=RSAONLY
+AUTOCREATE_SERVER_KEYS=NO
+
+# Do not change this option unless you have hardware random
+# generator and you REALLY know what you are doing/
+
+export SSH_USE_STRONG_RNG=0
+# export SSH_USE_STRONG_RNG=1
+
+# Options to pass to <%= sshd_name %><%= suffix %>
+<% if port == '22' -%>
+OPTIONS=""
+<% else -%>
+OPTIONS="-f <%= sshd_config %><%= suffix %>"
+<% end -%>
+

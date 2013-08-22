@@ -1,0 +1,6 @@
+<% if ! permitrootlogin -%>
+root
+<% end -%>
+<% denyusers.sort.each do |user| -%>
+<%= user %>
+<% end -%>

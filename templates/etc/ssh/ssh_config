@@ -1,0 +1,86 @@
+
+# This is the ssh client system-wide configuration file.  See
+# ssh_config(5) for more information.  This file provides defaults for
+# users, and the values can be changed in per-user configuration files
+# or on the command line.
+
+# Configuration data is parsed as follows:
+#  1. command line options
+#  2. user-specific file
+#  3. system-wide file
+# Any configuration value is only changed the first time it is set.
+# Thus, host-specific definitions should be at the beginning of the
+# configuration file, and defaults at the end.
+
+# Site-wide defaults for some commonly used options.  For a comprehensive
+# list of available options, their meanings and defaults, please see the
+# ssh_config(5) man page.
+
+# Host *
+#   ForwardAgent no
+#   ForwardX11 no
+#   ForwardX11Trusted yes
+#   RhostsRSAAuthentication no
+#   RSAAuthentication yes
+#   PasswordAuthentication yes
+#   HostbasedAuthentication no
+#   GSSAPIAuthentication no
+#   GSSAPIDelegateCredentials no
+#   GSSAPIKeyExchange no
+#   GSSAPITrustDNS no
+#   BatchMode no
+#   CheckHostIP yes
+#   AddressFamily any
+#   ConnectTimeout 0
+#   StrictHostKeyChecking ask
+#   IdentityFile ~/.ssh/identity
+#   IdentityFile ~/.ssh/id_rsa
+#   IdentityFile ~/.ssh/id_dsa
+#   Port 22
+#   Protocol 2,1
+#   Cipher 3des
+#   Ciphers aes128-ctr,aes192-ctr,aes256-ctr,arcfour256,arcfour128,aes128-cbc,3des-cbc
+#   MACs hmac-md5,hmac-sha1,umac-64@openssh.com,hmac-ripemd160
+#   EscapeChar ~
+#   Tunnel no
+#   TunnelDevice any:any
+#   PermitLocalCommand no
+#   VisualHostKey no
+#   ProxyCommand ssh -q -W %h:%p gateway.example.com
+
+<% 
+    # Flag to indicate if the default Host of '*'
+    # has been declared.
+    has_default = false
+-%>
+<% if host
+    host.each do |string,data| 
+
+        # We've got the default Host entry
+        if ( string == "*" ) then
+            has_default = true
+        end
+
+        # Validate the protocol value
+        if ( data['protocol'] && ( data['protocol'] != 1 || data['protocol'] != 2 ) ) then
+            scope.function_fail( string + ': invalid protocol (' + data['protocol'] + '): must be 1 or 2' )
+        end
+-%>
+
+Host <%= string %>
+    <% if data['ciphers'] -%>Ciphers <% c=''; data['ciphers'].each do |cipher| -%><%= c -%><%= cipher %><% c=',' -%><% end %><% else -%>Ciphers aes256-ctr,aes192-ctr,aes128-ctr<% end %>
+    <% if data['forwardx11'] == true -%>ForwardX11 yes<% else -%>ForwardX11 no<% end %>
+    <% if data['forwardx11Trusted'] == true -%>ForwardX11Trusted yes<% else -%>ForwardX11Trusted no<% end %>
+    <% if data['port'] -%>Port <%= data['port'] -%><% else -%>Port 22<% end %>
+    <% if data['protocol'] -%>Protocol <%= data['protocol'] -%><% else -%>Protocol 2<% end %>
+    <% if data['stricthostkeychecking'] == true -%>StrictHostKeyChecking yes<% else -%>StrictHostKeyChecking no<% end %>
+<% end -%>
+<% end -%>
+<% # We'll set a default configuration if one
+   # wasn't specified in the node definition.
+if ! has_default -%>
+Host *
+    Ciphers aes256-ctr,aes192-ctr,aes128-ctr
+    ForwardX11 no
+    Protocol 2
+<% end -%>

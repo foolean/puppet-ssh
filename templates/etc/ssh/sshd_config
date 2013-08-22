@@ -1,0 +1,211 @@
+# Puppet generated configuration file for ssh running on tcp/<%= port %>
+# See the sshd_config(5) manpage for details
+
+# What ports, IPs and protocols we listen for
+Port <%= port %>
+
+# Use these options to restrict which interfaces/protocols sshd will bind to
+#ListenAddress ::
+#ListenAddress 0.0.0.0
+<% listenaddress.sort.each do |address| -%>
+ListenAddress <%= address %>
+<% end -%>
+
+# IPv4, IPv6, or both (inet, inet6, any)
+AddressFamily <%= addressfamily %>
+
+# Protocol version to use
+Protocol <%= protocol %>
+
+# HostKeys for protocol version 2
+HostKey <%= rsakey %><%= suffix %>
+HostKey <%= dsakey %><%= suffix %>
+
+#Privilege Separation is turned on for security
+UsePrivilegeSeparation yes
+
+# Ciphers that are permitted
+<% if ciphers -%>
+Ciphers <% c=''; ciphers.each do |cipher| -%><%= c -%><%= cipher %><% c=',' -%><% end %>
+<% end -%>
+
+# File that contains the process ID of the SSH daemon
+PidFile /var/run/<%= sshd_name %><%= suffix %>.pid
+
+# The number of client alive messages which may be sent without
+# sshd(8) receiving any messages back from the client.
+ClientAliveCountMax <%= clientalivecountmax %>
+
+# The timeout interval in seconds after which if no data has been received
+# from the client, sshd(8) will send a message through the encrypted channel
+# to request a response from the client.
+ClientAliveInterval <%= clientaliveinterval %>
+
+# Allow TCP forwarding
+<% if allowtcpforwarding -%>
+AllowTcpForwarding yes
+<% permitopen.sort.each do |address| -%>
+PermitOpen <%= address %>
+<% end -%>
+<% else -%>
+AllowTcpForwarding no
+<% end -%>
+
+# Lifetime and size of ephemeral version 1 server key
+KeyRegenerationInterval 3600
+ServerKeyBits 2048
+
+# Logging
+SyslogFacility <%= syslogfacility %>
+LogLevel <%= log_level %>
+
+# Authentication:
+LoginGraceTime 30
+
+<% if permitrootlogin -%>
+PermitRootLogin yes
+<% else -%>
+PermitRootLogin no
+<% end -%>
+
+StrictModes yes
+
+RSAAuthentication no
+<% if pubkeyauthentication -%>
+PubkeyAuthentication yes
+<% else -%>
+PubkeyAuthentication no
+<% end -%>
+<% if authorizedkeysfile -%>
+AuthorizedKeysFile      <%= authorizedkeysfile %>
+<% else -%>
+#AuthorizedKeysFile     %h/.ssh/authorized_keys
+<% end -%>
+
+# Don't read the user's ~/.rhosts and ~/.shosts files
+IgnoreRhosts yes
+# For this to work you will also need host keys in /etc/ssh_known_hosts
+RhostsRSAAuthentication no
+# similar for protocol version 2
+HostbasedAuthentication no
+# Uncomment if you don't trust ~/.ssh/known_hosts for RhostsRSAAuthentication
+#IgnoreUserKnownHosts yes
+
+# To enable empty passwords, change to yes (NOT RECOMMENDED)
+PermitEmptyPasswords no
+
+# Change to yes to enable challenge-response passwords (beware issues with
+# some PAM modules and threads)
+<% if challengresponseauthentication -%>
+ChallengeResponseAuthentication yes
+<% else -%>
+ChallengeResponseAuthentication no
+<% end -%>
+
+# Change to no to disable tunnelled clear text passwords
+<% if passwordauthentication -%>
+PasswordAuthentication yes
+<% else -%>
+PasswordAuthentication no
+<% end -%>
+
+# Kerberos options
+#KerberosAuthentication no
+#KerberosGetAFSToken no
+#KerberosOrLocalPasswd yes
+#KerberosTicketCleanup yes
+
+# GSSAPI options
+#GSSAPIAuthentication no
+#GSSAPICleanupCredentials yes
+
+<% if x11forwarding -%>
+X11Forwarding yes
+<% else -%>
+X11Forwarding no
+<% end -%>
+X11DisplayOffset 10
+<% if printmotd -%>
+PrintMotd yes
+<% else -%>
+PrintMotd no
+<% end -%>
+<% if printlastlog -%>
+PrintLastLog yes
+<% else -%>
+PrintLastLog no
+<% end -%>
+<% if tcpkeepalive -%>
+TCPKeepAlive yes
+<% else -%>
+TCPKeepAlive no
+<% end -%>
+#UseLogin no
+
+# Maximum number of open sessions per network connection
+MaxSessions <%= maxsessions %>
+
+MaxStartups <%= maxstartups %>
+Banner <%= banner %>
+
+# Allow client to pass locale environment variables
+<% if acceptenv -%>
+AcceptEnv<% acceptenv.each do |env| -%> <%= env %><% end -%>
+<% end %>
+
+<% if chrootdirectory -%>
+Subsystem internal-sftp
+ChrootDirectory <%= chrootdirectory %>
+<% else -%>
+Subsystem sftp <%= sftp_server %>
+<% end -%>
+
+<% if forcecommand -%>
+# Force the execution of a command
+ForceCommand <%= forcecommand %>
+<% end -%>
+
+<% if os != 'openbsd' -%>
+# Set this to 'yes' to enable PAM authentication, account processing,
+# and session processing. If this is enabled, PAM authentication will
+# be allowed through the ChallengeResponseAuthentication and
+# PasswordAuthentication.  Depending on your PAM configuration,
+# PAM authentication via ChallengeResponseAuthentication may bypass
+# the setting of "PermitRootLogin without-password".
+# If you just want the PAM account and session checks to run without
+# PAM authentication, then enable this but set PasswordAuthentication
+# and ChallengeResponseAuthentication to 'no'.
+<% if usepam -%>
+UsePAM yes
+<% else -%>
+UsePAM no
+<% end -%>
+<% end -%>
+<% if allowusers -%>
+
+# List of users permitted to access this server
+AllowUsers<% allowusers.each do |user| -%> <%= user %><% end -%>
+<% end %>
+<% if allowgroups -%>
+
+# List of groups permitted to access this server
+AllowGroups<% allowgroups.each do |group| -%> <%= group %><% end -%>
+<% end %>
+<% if permitrootlogin == false || denyusers -%>
+
+# List of users NOT permitted to access this server
+DenyUsers <% if permitrootlogin == false -%>root <% end -%><% denyusers.sort.each do |user| -%><%= user %> <% end %>
+<% end %>
+<% if denygroups -%>
+
+# List of groups NOT permitted to access this server
+DenyGroups<% denygroups.each do |group| -%> <%= group %><% end -%>
+<% end %>
+
+# Match users
+<% match_users.sort.each do |user,hash| -%>
+Match User <%= user %>
+<% hash.sort.each do |var,val| -%>
+    <%= var %> <%= val %>
+<% end -%>
+<% end -%>
