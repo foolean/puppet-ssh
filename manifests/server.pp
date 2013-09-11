@@ -265,9 +265,18 @@
 #
 # [*permitrootlogin*]
 #   Specifies whether root can log in using ssh(1).  The argument
-#   must be 'true' or 'false'.  The default is 'false'.
+#   Specifies whether root can log in using ssh(1).  The argument
+#   must be “yes”, “without-password”, “forced-commands-only”, or
+#   “no”.  The default is “yes”.
 #
-#   If this option is set to 'false', root is not allowed to log in.
+#   If this option is set to “without-password”, password authentication
+#   is disabled for root. If this option is set to “forced-commands-only”,
+#   root login with public key authentication will be allowed, but only
+#   if the command option has been specified (which may be useful for
+#   taking remote backups even if root login is normally not allowed).
+#   All other authentication methods are disabled for root.
+#
+#   If this option is set to “no”, root is not allowed to log in.
 #
 # [*port*]
 #   Specifies the port number that sshd(8) listens on.  The default
@@ -523,7 +532,7 @@ define ssh::server (
     $allowtcpforwarding             = false,
     $chrootdirectory                = false,
     $denygroups                     = false,
-    $permitrootlogin                = false,
+    $permitrootlogin                = 'no',
     $forcecommand                   = false,
     $x11forwarding                  = false,
     $maxstartups                    = '10:30:100',
@@ -578,8 +587,11 @@ define ssh::server (
     if $allowtcpforwarding != true and $allowtcpforwarding != false {
         fail( 'allowtcpforwarding must be "true" or "false"' )
     }
-    if $permitrootlogin != true and $permitrootlogin != false {
-        fail( 'PermitRootLogin must be "true" or "false"' )
+    case $permitrootlogin {
+        'no', 'yes', 'without-password', 'force-commands-only': {}
+        default: {
+            fail( 'PermitRootLogin must be "yes", "no", "without-password", or "force-commands-only"' )
+        }
     }
     if $x11forwarding != true and $x11forwarding != false {
         fail( 'x11forwarding must be "true" or "false"' )

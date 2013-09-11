@@ -63,7 +63,7 @@ LogLevel <%= log_level %>
 LoginGraceTime 30
 
 <% if permitrootlogin -%>
-PermitRootLogin yes
+PermitRootLogin <%= permitrootlogin %>
 <% else -%>
 PermitRootLogin no
 <% end -%>
