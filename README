@@ -12,19 +12,31 @@ Example
         ssh::server { 'special': port => 2222 }
     }
 
+Packaging
+---------
+
+Creating the package (tarball) that can be installed using puppet's module
+function is simple.  Run the following command while in the top of the module
+directory (e.g. /usr/src/puppet-ssh).
+
+    puppet module build .
+
+The resulting tarball will be named foolean-ssh-$VER.tar.gz and can be found
+in the "pkg" directory within the source tree.
+
 Installation and Upgrade
 ------------------------
 
-Since we're installing from a tarball the installation and upgrade process
+When we're installing from a tarball the installation and upgrade process
 is the same.  You'll need to set --modulepath if f you're installing the
 module in a path other than the location defined in puppet.conf.
 
-    MODULEPATH=/var/lib/puppet/master/production/modules
+    MODULEPATH=/var/lib/puppet/modules
     puppet module install         \
         --force                   \
         --ignore-dependencies     \
         --module-path $MODULEPATH \
-        $PATHTO/master-ssh-$VER.tar.gz
+        $PATHTO/foolean-ssh-$VER.tar.gz
 
 Limitations
 -----------
