@@ -154,7 +154,7 @@ AcceptEnv<% acceptenv.each do |env| -%> <%= env %><% end -%>
 <% end %>
 
 <% if chrootdirectory -%>
-Subsystem internal-sftp
+Subsystem sftp internal-sftp
 ChrootDirectory <%= chrootdirectory %>
 <% else -%>
 Subsystem sftp <%= sftp_server %>
