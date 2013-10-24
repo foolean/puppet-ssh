@@ -35,8 +35,18 @@
 #   class { 'ssh::client':
 #       host => {
 #           "*.${domain}" => {
-#               'stricthostkeychecking' => true,
-#               'forwardx11'            => true,
+#               'forwardx11'             => true,
+#               'forwardx11trusted'      => true,
+#               'passwordauthentication' => false,
+#               'port'                   => 2242,
+#               'protocol'               => 2,
+#               'sendenv'                => [
+#                   'LANG', 'LC_CTYPE', 'LC_NUMERIC', 'LC_TIME', 'LC_COLLATE',
+#                   'LC_MONETARY', 'LC_MESSAGES', 'LC_PAPER', 'LC_NAME',
+#                   'LC_ADDRESS', 'LC_TELEPHONE', 'LC_MEASUREMENT',
+#                   'LC_IDENTIFICATION', 'LC_ALL'
+#               ],
+#               'stricthostkeychecking'  => true,
 #           },
 #       }
 #   }

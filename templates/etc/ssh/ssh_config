@@ -54,7 +54,7 @@
     has_default = false
 -%>
 <% if host
-    host.each do |string,data| 
+    host.sort.map do |string,data| 
 
         # We've got the default Host entry
         if ( string == "*" ) then
@@ -62,11 +62,11 @@
         end
 
         # Validate the protocol value
-        if ( data['protocol'] && ( data['protocol'] != 1 || data['protocol'] != 2 ) ) then
+        if ( data['protocol'] && ( data['protocol'] != '1' && data['protocol'] != '2' ) ) then
             scope.function_fail( string + ': invalid protocol (' + data['protocol'] + '): must be 1 or 2' )
         end
 -%>
-
+ 
 Host <%= string %>
     <% if data['ciphers'] -%>Ciphers <% c=''; data['ciphers'].each do |cipher| -%><%= c -%><%= cipher %><% c=',' -%><% end %><% else -%>Ciphers aes256-ctr,aes192-ctr,aes128-ctr<% end %>
     <% if data['forwardx11'] == true -%>ForwardX11 yes<% else -%>ForwardX11 no<% end %>
@@ -74,8 +74,13 @@ Host <%= string %>
     <% if data['port'] -%>Port <%= data['port'] -%><% else -%>Port 22<% end %>
     <% if data['protocol'] -%>Protocol <%= data['protocol'] -%><% else -%>Protocol 2<% end %>
     <% if data['stricthostkeychecking'] == true -%>StrictHostKeyChecking yes<% else -%>StrictHostKeyChecking no<% end %>
-<% end -%>
-<% end -%>
+    <% if data['passwordauthentication'] == false -%>PasswordAuthentication no<% else -%>PasswordAuthentication yes<% end %>
+<% if data['hostname'] -%>    HostName <%= data['hostname'] %><% end -%>
+<% if data['sendenv'] -%>    SendEnv <% c=''; data['sendenv'].each do |sendenv| -%><%= c -%><%= sendenv %><% c=' ' -%><% end %><% end -%>
+ 
+<% end %>
+<% end %>
+
 <% # We'll set a default configuration if one
    # wasn't specified in the node definition.
 if ! has_default -%>
@@ -84,3 +89,4 @@ Host *
     ForwardX11 no
     Protocol 2
 <% end -%>
+
