@@ -8,16 +8,8 @@
 #   A hash of hashes for each 'Host' section to be defined in the
 #   global ssh_config file.
 #
-#   Note: Only the following configuration options are available
-#         for use in the global ssh_config file.  This class can
-#         be extended to handle more though most are better suited
-#         for the user specific ~/.ssh/config file.
-#
-#   Current configurable options w/defaults:
-#   * allowx11              => false
-#   * ciphers               => [ 'aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
-#   * protocol              => 2
-#   * stricthostkeychecking => false
+#   All configuration options are available for use in the global ssh_config
+#   file.  This class does not manage user specific ~/.ssh/config files.
 #
 # === Variables
 #
