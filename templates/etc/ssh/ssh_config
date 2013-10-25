@@ -48,45 +48,131 @@
 #   VisualHostKey no
 #   ProxyCommand ssh -q -W %h:%p gateway.example.com
 
-<% 
-    # Flag to indicate if the default Host of '*'
-    # has been declared.
-    has_default = false
--%>
-<% if host
-    host.sort.map do |string,data| 
+<%
+# Process a boolean value
+def do_boolean(option, val)
+    if val then
+        return "    " + option + " yes\n"
+    end
+    return "    " + option + " no\n"
+end
 
-        # We've got the default Host entry
-        if ( string == "*" ) then
-            has_default = true
-        end
+# Process a simple text value
+def do_text(option, val)
+    return "    " + option + " " + val + "\n"
+end
 
-        # Validate the protocol value
-        if ( data['protocol'] && ( data['protocol'] != '1' && data['protocol'] != '2' ) ) then
-            scope.function_fail( string + ': invalid protocol (' + data['protocol'] + '): must be 1 or 2' )
+# Process the "ciphers" option
+def do_ciphers(name, val)
+    if ! val.kind_of?(Array) then
+        err_quit(name, 'invalid ciphers: must be an array')
+    end
+
+    delim = ""
+    line  = ""
+    val.sort.each do |cipher|
+        line += delim + cipher
+        delim = ","
+    end
+    return "    Ciphers " + line + "\n"
+end
+
+# Process the "port" option
+def do_port(name, val)
+    if ( val.to_i > 0 ) then
+        return "    Port " + val.to_s + "\n"
+    else
+        err_quit(name, 'invalid port (' + val + '): must be integer' )
+    end
+end
+
+# Process the "protocol" option
+def do_protocol(name, val)
+    val = val.to_s
+    if (val != '1' && val != '2') then
+        err_quit(name, 'invalid protocol (' + val + '): must be 1 or 2' )
+    end
+    return "    Protocol " + val + "\n"
+end
+
+# Process the "sendenv" option
+def do_sendenv(name, val)
+    if ! val.kind_of?(Array) then
+        err_quit(name, 'invalid sendenv: must be an array')
+    end
+
+    delim = ""
+    line  = ""
+    val.sort.each do |env|
+        line += delim + env
+        delim = " "
+    end
+    return "    SendEnv " + line + "\n"
+end
+
+def process_config_hash(name, data)
+    result = ""
+    data.sort.map do |var,val|
+        config_line = case var.downcase
+            when "ciphers" then
+                do_ciphers( name, val )
+            when "forwardx11" then
+                do_boolean( "ForwardX11", val )
+            when "forwardx11trusted" then
+                do_boolean( "ForwardX11Trusted", val )
+            when "hostname" then
+                do_text( "Hostname", val )
+            when "passwordauthentication" then
+                do_boolean( "PasswordAuthentication", val )
+            when "port" then
+                do_port( name, val )
+            when "protocol" then
+                do_protocol( name, val )
+            when "sendenv" then
+                do_sendenv( name, val )
+            when "stricthostkeychecking" then
+                do_boolean( "StrictHostKeyChecking", val )
+            else
+                "    # Puppet has encountered an unknown option: " + var + "\n"
         end
+        result += config_line
+    end
+    return result
+end
+
+### err_quit - Helper function to display an error message and fail
+def err_quit(name,text)
+    message = "ERROR: Host[" + name + "]: "
+    message = message + text
+    scope.function_fail( message )
+end
 -%>
- 
+#
+# Custom Host blocks
+#
+<%
+host.sort.map do |string,data|
+    if ( string == "*" ) then
+        next
+    end
+-%>
 Host <%= string %>
-    <% if data['ciphers'] -%>Ciphers <% c=''; data['ciphers'].each do |cipher| -%><%= c -%><%= cipher %><% c=',' -%><% end %><% else -%>Ciphers aes256-ctr,aes192-ctr,aes128-ctr<% end %>
-    <% if data['forwardx11'] == true -%>ForwardX11 yes<% else -%>ForwardX11 no<% end %>
-    <% if data['forwardx11Trusted'] == true -%>ForwardX11Trusted yes<% else -%>ForwardX11Trusted no<% end %>
-    <% if data['port'] -%>Port <%= data['port'] -%><% else -%>Port 22<% end %>
-    <% if data['protocol'] -%>Protocol <%= data['protocol'] -%><% else -%>Protocol 2<% end %>
-    <% if data['stricthostkeychecking'] == true -%>StrictHostKeyChecking yes<% else -%>StrictHostKeyChecking no<% end %>
-    <% if data['passwordauthentication'] == false -%>PasswordAuthentication no<% else -%>PasswordAuthentication yes<% end %>
-<% if data['hostname'] -%>    HostName <%= data['hostname'] %><% end -%>
-<% if data['sendenv'] -%>    SendEnv <% c=''; data['sendenv'].each do |sendenv| -%><%= c -%><%= sendenv %><% c=' ' -%><% end %><% end -%>
- 
-<% end %>
-<% end %>
-
-<% # We'll set a default configuration if one
-   # wasn't specified in the node definition.
-if ! has_default -%>
+<%= process_config_hash(string, data) %>
+<% end -%>
+#
+# Default Host block
+#
+<%
+# We'll set the default cipher list if one wasn't provided
+if ! host["*"].has_key?("ciphers") 
+    host["*"]["ciphers"] = [ 'aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
+end
+-%>
 Host *
+<% if host["*"] -%>
+<%= process_config_hash("*", host["*"]) %>
+<% else -%>
     Ciphers aes256-ctr,aes192-ctr,aes128-ctr
     ForwardX11 no
     Protocol 2
-<% end -%>
-
+<% end %>
