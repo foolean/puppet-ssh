@@ -244,6 +244,10 @@
 #   attempts are refused if the number of unauthenticated connections
 #   reaches “full” (60).
 #
+# [*pamradiusauth*]
+#   Specifies whether RADIUS authentication is to be included in the
+#   PAM authentication file.  The default is 'false'.
+#
 # [*passwordauthentication*]
 #   Specifies whether password authentication is allowed.  The
 #   default is 'true'.
@@ -545,6 +549,7 @@ define ssh::server (
     $tcpkeepalive                   = true,
     $printlastlog                   = true,
     $usepam                         = true,
+    $pamradiusauth                  = false,
     $syslogfacility                 = 'AUTH',
     $log_level                      = 'VERBOSE',
     $acceptenv                      = [ 'LANG', 'LC_*' ],

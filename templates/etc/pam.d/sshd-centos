@@ -2,6 +2,11 @@
 # Use pam_listfile to deny users specified in <%= deny_users %>
 auth       requisite    pam_listfile.so item=user sense=deny file=<%= deny_users %> onerr=succeed
 
+<% if pamradiusauth -%>
+# Require SecurID authentication
+auth       requisite    pam_radius_auth.so
+
+<% end -%>
 auth	   required	    pam_sepermit.so
 auth       include      password-auth
 account    required     pam_nologin.so
