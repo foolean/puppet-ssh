@@ -984,9 +984,11 @@ define ssh::server (
 
             # Copy the RSA host private key
             $rsa_pri_key = file(
-                "${settings::vardir}/${ssh::private_mount}/${::fqdn}/${rsakey}${suffix}",
-                "${settings::vardir}/${ssh::private_path}/${::fqdn}/${rsakey}${suffix}",
-                "/var/lib/puppet/local/host/${::fqdn}/${rsakey}${suffix}",
+                "${ssh::site_private_path}/${rsakey}${suffix}",
+                "${settings::vardir}/private/${::fqdn}/${rsakey}${suffix}",
+                "${settings::vardir}/hosts/${::fqdn}/${rsakey}${suffix}",
+                "${settings::vardir}/nodefile/${::fqdn}/${rsakey}${suffix}",
+                "${settings::vardir}/dist/${::fqdn}/${rsakey}${suffix}",
                 '/dev/null'
             )
             if ( $rsa_pri_key ) {
@@ -1011,9 +1013,11 @@ define ssh::server (
 
             # Copy the RSA host public key
             $rsa_pub_key = file(
-                "${settings::vardir}/${ssh::private_mount}/${::fqdn}/${rsakey}${suffix}.pub",
-                "${settings::vardir}/${ssh::private_path}/${::fqdn}/${rsakey}${suffix}.pub",
-                "/var/lib/puppet/local/host/${::fqdn}/${rsakey}${suffix}.pub",
+                "${ssh::site_private_path}/${rsakey}${suffix}.pub",
+                "${settings::vardir}/private/${::fqdn}/${rsakey}${suffix}.pub",
+                "${settings::vardir}/hosts/${::fqdn}/${rsakey}${suffix}.pub",
+                "${settings::vardir}/nodefile/${::fqdn}/${rsakey}${suffix}.pub",
+                "${settings::vardir}/dist/${::fqdn}/${rsakey}${suffix}.pub",
                 '/dev/null'
             )
             if ( $rsa_pub_key ) {
@@ -1038,9 +1042,11 @@ define ssh::server (
 
             # Copy the DSA host private key
             $dsa_pri_key = file(
-                "${settings::vardir}/${ssh::private_mount}/${::fqdn}/${dsakey}${suffix}",
-                "${settings::vardir}/${ssh::private_path}/${::fqdn}/${dsakey}${suffix}",
-                "/var/lib/puppet/local/host/${::fqdn}/${dsakey}${suffix}",
+                "${ssh::site_private_path}/${dsakey}${suffix}",
+                "${settings::vardir}/private/${::fqdn}/${dsakey}${suffix}",
+                "${settings::vardir}/hosts/${::fqdn}/${dsakey}${suffix}",
+                "${settings::vardir}/nodefile/${::fqdn}/${dsakey}${suffix}",
+                "${settings::vardir}/dist/${::fqdn}/${dsakey}${suffix}",
                 '/dev/null'
             )
             if ( $dsa_pri_key ) {
@@ -1065,9 +1071,11 @@ define ssh::server (
 
             # Copy the DSA host public key
             $dsa_pub_key = file(
-                "${settings::vardir}/${ssh::private_mount}/${::fqdn}/${dsakey}${suffix}.pub",
-                "${settings::vardir}/${ssh::private_path}/${::fqdn}/${dsakey}${suffix}.pub",
-                "/var/lib/puppet/local/host/${::fqdn}/${dsakey}${suffix}.pub",
+                "${ssh::site_private_path}/${dsakey}${suffix}.pub",
+                "${settings::vardir}/private/${::fqdn}/${dsakey}${suffix}.pub",
+                "${settings::vardir}/hosts/${::fqdn}/${dsakey}${suffix}.pub",
+                "${settings::vardir}/nodefile/${::fqdn}/${dsakey}${suffix}.pub",
+                "${settings::vardir}/dist/${::fqdn}/${dsakey}${suffix}.pub",
                 '/dev/null'
             )
             if ( $dsa_pub_key ) {

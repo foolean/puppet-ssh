@@ -38,6 +38,31 @@ module in a path other than the location defined in puppet.conf.
         --module-path $MODULEPATH \
         $PATHTO/foolean-ssh-$VER.tar.gz
 
+Managing Server Host Keys
+-------------------------
+
+Most modern ssh packages will create the server's host keys if they don't
+already exist.  This module will also create the server's host keys if they
+don't exist.  In some situations it is adventageous for a server to retain
+it's server keys upon complete system rebuild.  Doing so prevents clients from
+having to deal with the key mismatch errors that would happen otherwise.  This
+module will look in several locations for copies of the key files before
+creating keys.  
+
+    The paths it will look in are:
+    ${settings::vardir}/sites/${site_name}/${::fqdn}/etc/ssh/${key_file}
+    ${settings::vardir}/private/${::fqdn}/etc/ssh/${key_file}
+    ${settings::vardir}/hosts/${::fqdn}/etc/ssh/${key_file}
+    ${settings::vardir}/nodefile/${::fqdn}/etc/ssh/${key_file}
+    ${settings::vardir}/dist/${::fqdn}/etc/ssh/${key_file}
+
+So far there doesn't seem to be a way to pass an array to puppet's file()
+function so these are hard-coded lists for each of the RSA and DSA keys.
+Passing the content of the keys as a parameter was also considered but
+it was decided that doing so would make the node definition too difficult to
+read.  This concept will be revisited in the future when it is made Heira
+aware.
+
 Limitations
 -----------
 
