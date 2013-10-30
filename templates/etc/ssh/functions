@@ -1,0 +1,557 @@
+<%
+###############################################################################
+
+require 'resolv'    # For IPv4 and IPv6 address validation
+
+###########################
+# BASIC UTILITY FUNCTIONS #
+###########################
+
+# err_quit - Print error message and fail
+def err_quit(name,text)
+    message = "ERROR: [" + name + "]: "
+    message = message + text
+    scope.function_fail( message )
+end
+
+# do_indent - helper function to add intenting (4 spaces)
+def do_indent(indent)
+    if ( indent ) then
+        return "    "
+    end
+    return ""
+end
+
+# do_boolean - Process a boolean value
+# Note: this function permits boolean true, false as well as 'yes', 'no'
+def do_boolean(name, option, value, indent=false)
+    if !!value != value then
+        case value.downcase
+            when "yes" then
+                value = true
+            when "no" then
+                value = false
+            else
+                err_quit(name, 'invalid ' + option.downcase + '(' + value + '): must be a boolean true or false' )
+        end
+    end
+
+    # start with any indenting and the option name
+    result = do_indent(indent) + option
+
+    # add our valueue
+    if value then
+        result = result + " yes\n"
+    else
+        result = result + " no\n"
+    end
+
+    # return the resulting string
+    return result
+end
+
+# do_integer - Process an integer valueue
+def do_integer(name, option, value, indent=false)
+    if ( value != 0 && value != '0' && value.to_i == 0 ) then
+        err_quit(name, 'inalid ' + option.downcase + '(' + value + '): must be a number' )
+    end
+    return do_indent(indent) + option + " " + value + "\n"
+end
+
+# do_integer_range - Process an integer value within a range
+def do_integer_range(name, option, value, min, max, indent=false)
+    if ( value != 0 && value != '0' && value.to_i == 0 ) then
+        err_quit(name, 'inalid ' + option.downcase + '(' + value + '): must be a number' )
+    end
+    if ( value.to_i < min || value.to_i > max ) then
+        err_quit(name, 'inalid ' + option.downcase + '(' + value + '): must be ' + min.to_s + '-' + max.to_s)
+    end
+    return do_indent(indent) + option + " " + value + "\n"
+end
+
+# do_text - Process a free-form text value
+def do_text(option, value, indent=false)
+    return do_indent(indent) + option + " " + value + "\n"
+end
+
+# is_valid_ip - return true|false if address is a valid IPv4 or IPv6 address
+def is_valid_ip(address)
+    case address
+        when Resolv::IPv4::Regex
+            return true
+        when Resolv::IPv6::Regex
+            return true
+        else
+            return false
+    end
+end
+
+#############################
+# OPTION SPECIFIC FUNCTIONS #
+#############################
+
+# do_acceptenv - Process the "acceptenv" option
+def do_acceptenv(name, value, indent=false)
+    if ! value.kind_of?(Array) then
+        err_quit(name, 'invalid acceptenv: must be an array')
+    end
+
+    delim = ""
+    line  = ""
+    value.sort.each do |env|
+        line += delim + env
+        delim = " "
+    end
+    return do_indent(indent) + "AcceptEnv " + line + "\n"
+end
+
+# do_addressfamily - Process the "addressfamily" option
+def do_addressfamily(name, value, indent=false)
+    if ( value != 'any' && value != 'inet' && value != 'inet6' ) then
+        err_quit(name, 'invalid addressfamily (' + value + '): must be any, inet, or inet6' )
+    end
+    return do_indent(indent) + "AddressFamily " + value.downcase + "\n"
+end
+
+# do_cipher - Process the "cipher" option
+def do_cipher(name, value, indent=false)
+    if ( value != "blowfish" && value != "3des" && value != "des" )
+        err_quit(name, 'invalid cipher (' + value + ')')
+    end
+    return do_indent(indent) + "Cipher " + value + "\n"
+end
+
+# do_ciphers - Process the "ciphers" option
+def do_ciphers(name, value, indent=false)
+
+    # Just return if we were passed 'false'
+    if ( ! value ) then
+        return
+    end
+
+    # Fail if we don't have an array
+    if ( ! value.kind_of?(Array) ) then
+        err_quit(name, 'invalid ciphers: must be an array')
+    end
+
+    # Just return if we have an empty array
+    if ( value.length == 0 ) then
+        return
+    end
+
+    valid_ciphers = Hash.new
+    valid_ciphers["3des-cbc"] = 1
+    valid_ciphers["aes128-cbc"] = 1
+    valid_ciphers["aes192-cbc"] = 1
+    valid_ciphers["aes256-cbc"] = 1
+    valid_ciphers["aes128-ctr"] = 1
+    valid_ciphers["aes192-ctr"] = 1
+    valid_ciphers["aes256-ctr"] = 1
+    valid_ciphers["arcfour128"] = 1
+    valid_ciphers["arcfour256"] = 1
+    valid_ciphers["arcfour"] = 1
+    valid_ciphers["blowfish-cbc"] = 1
+    valid_ciphers["cast128-cbc"] = 1
+
+    delim = ""
+    line  = ""
+
+    # Assemble the cipher list into a comma separated list
+    value.sort.each do |cipher|
+        if ( ! valid_ciphers[cipher] ) then
+            err_quit( name, 'invalid cipher in ciphers list (' + cipher + ')')
+        end
+        line += delim + cipher
+        delim = ","
+    end
+
+    # Return the result
+    return do_indent(indent) + "Ciphers " + line + "\n"
+end
+
+# do_controlmaster - Process the "controlmaster" option
+def do_controlmaster(name, value, indent=false)
+    if !!value != value then
+        if value.downcase != 'ask' && value.downcase != 'auto' && value.downcase != 'autoask' &&
+           value.downcase != 'yes' && value.downcase != 'no' then
+            err_quit(name, 'invalid controlmaster (' + value.downcase + ')')
+        else
+            return do_indent(indent) + "ControlMaster " + value.downcase + "\n"
+        end
+    end
+    if val then
+        return do_indent(indent) + "ControlMaster yes\n"
+    end
+    return do_indent(indent) + "ControlMaster no\n"
+end
+
+# do_gatewayports - Process the "gatewayports" option
+def do_gatewayports(name, value, indent=false)
+    if !!value != value then
+        if value.downcase != 'yes' && value.downcase != 'no' && value.downcase != 'clientspecified' then
+            err_quit(name, 'invalid gatewayports (' + value.downcase + ')')
+        else
+            return do_indent(indent) + "GatewayPorts " + value.downcase + "\n"
+        end
+    end
+    if value then
+        return do_indent(indent) + "GatewayPorts yes\n"
+    end
+    return do_indent(indent) + "GatewayPorts no\n"
+end
+
+# do_kbdinteractivedevices - Process the "kbdinteractivedevices" option
+def do_kbdinteractivedevices(name, value)
+    if value.downcase != 'bsdauth' && value.downcase != 'pam' && value.downcase != 'skey' then
+        err_quit(name, 'invalid kbdinteractivedevices (' + value.downcase + ')')
+    end
+    return do_indent(indent) + "KbdInteractiveDevices " + value.downcase
+end
+
+# do_listenaddress - Process the "listenaddress" option
+def do_listenaddress(name, value, indent=false)
+    if ( ! is_valid_ip(value) ) then
+        err_quit(name, 'invalid address (' + value + '): must be IPv4 or IPv6 address' )
+    end
+    return do_indent(indent) + "ListenAddress " + value.downcase + "\n"
+end
+
+# do_loglevel - Process the "loglevel" option
+def do_loglevel(name, value, indent=false)
+
+    levels = Hash.new
+    levels["QUIET"]   = 1
+    levels["FATAL"]   = 1
+    levels["ERROR"]   = 1
+    levels["INFO"]    = 1
+    levels["VERBOSE"] = 1
+    levels["DEBUG"]   = 1
+    levels["DEBUG1"]  = 1
+    levels["DEBUG2"]  = 1
+    levels["DEBUG3"]  = 1
+
+    if !levels[value.upcase] then
+        err_quit(name, 'invalid loglevel (' + value.upcase + ')')
+    end
+    return do_indent(indent) + "LogLevel " + value.upcase + "\n"
+end
+
+# do_permitrootlogin - Process the "permitrootlogin" option
+def do_permitrootlogin(name, value, indent=false)
+    if !!value != value then
+        if value.downcase != 'yes' && value.downcase != 'no' &&
+            value.downcase != 'without-password' && value.downcase != 'forced-commands-only' then
+            err_quit(name, 'invalid permitrootlogin (' + value.downcase + ')')
+        else
+            return do_indent(indent) + "PermitRootLogin " + value.downcase + "\n"
+        end
+    end
+    if value then
+        return do_indent(indent) + "PermitRootLogin yes\n"
+    end
+    return do_indent(indent) + "PermitRootLogin no\n"
+end
+
+# do_sendenv - Process the "sendenv" option
+def do_sendenv(name, value, indent=false)
+    if ! value.kind_of?(Array) then
+        err_quit(name, 'invalid sendenv: must be an array')
+    end
+
+    delim = ""
+    line  = ""
+    value.sort.each do |env|
+        line += delim + env
+        delim = " "
+    end
+    return do_indent(indent) + "SendEnv " + line + "\n"
+end
+
+# do_stricthostkeychecking - Process the "stricthostkeychecking" option
+def do_stricthostkeychecking(name, value, indent=false)
+    if !!value != value then
+        if value.downcase != 'ask' &&
+           value.downcase != 'yes' && value.downcase != 'no' then
+            err_quit(name, 'invalid stricthostkeychecking (' + value.downcase + ')')
+        else
+            return do_indent(indent) + "StrictHostKeyChecking " + value.downcase + "\n"
+        end
+    end
+    if value then
+        return do_indent(indent) + "StrictHostKeyChecking yes\n"
+    end
+    return do_indent(indent) + "StrictHostKeyChecking no\n"
+end
+
+# do_syslogfacility - Process the "syslogfacility" option
+def do_syslogfacility(name, value, indent=false)
+
+    facilities = Hash.new
+    facilities["DAEMON"] = 1
+    facilities["USER"]   = 1
+    facilities["AUTH"]   = 1
+    facilities["LOCAL0"] = 1
+    facilities["LOCAL1"] = 1
+    facilities["LOCAL2"] = 1
+    facilities["LOCAL3"] = 1
+    facilities["LOCAL4"] = 1
+    facilities["LOCAL5"] = 1
+    facilities["LOCAL6"] = 1
+    facilities["LOCAL7"] = 1
+
+    if !facilities[value.upcase] then
+        err_quit(name, 'invalid syslogfacility (' + value.upcase + ')')
+    end
+    return do_indent(indent) + "SyslogFacility " + value.upcase + "\n"
+end
+
+# do_tunnel - Process the "tunnel" option
+def do_tunnel(name, value, indent=false)
+    if !!value != value then
+        if value.downcase != 'yes' && value.downcase != 'no' &&
+           value.downcase != 'point-to-point' && value.downcase != 'ethernet' then
+            err_quit(name, 'invalid tunnel (' + value.downcase + ')')
+        else
+            return do_indent(indent) + "Tunnel " + value.downcase + "\n"
+        end
+    end
+    if value then
+        return do_indent(indent) + "Tunnel yes\n"
+    end
+    return do_indent(indent) + "Tunnel no\n"
+end
+
+# do_verifyhostkeydns - Process the "verifyhostkeydns" option
+def do_verifyhostkeydns(name, value, indent=false)
+    if !!value != value then
+        if value.downcase != 'ask' &&
+           value.downcase != 'yes' && value.downcase != 'no' then
+            err_quit(name, 'invalid verifyhostkeydns (' + value.downcase + ')')
+        else
+            return do_indent(indent) + "VerifyHostKeyDNS " + value.downcase + "\n"
+        end
+    end
+    if val then
+        return do_indent(indent) + "VerifyHostKeyDNS yes\n"
+    end
+    return do_indent(indent) + "VerifyHostKeyDNS no\n"
+end
+
+##########################################
+# CONFIGURATION BLOCK SPECIFIC FUNCTIONS #
+##########################################
+
+# Iterate over sshd_config's Match configuration options
+def process_sshd_config_match_hash(name, data)
+    tag = "Match[" + name + "]"
+    result = ""
+    data.sort.map do |var,val|
+        config_line = case var.downcase
+            when 'allowagentforwarding' then
+                do_boolean( tag,  'AllowAgentForwarding', val, true )
+            when 'allowtcpforwarding' then
+                do_boolean( tag,  'AllowTcpForwarding', val, true )
+            when 'banner' then
+                do_text( 'Banner', val, true )
+            when 'chrootdirectory' then
+                do_text( 'ChrootDirectory', val, true )
+            when 'forcecommand' then
+                do_text( 'ForceCommand', val, true )
+            when 'gatewayports' then
+                do_gatewayports( tag, val, true )  
+            when 'gssapiauthentication' then
+                do_boolean( tag,  'GSSAPIAuthentication', val, true )
+            when 'hostbasedauthentication' then
+                do_boolean( tag,  'HostbasedAuthentication', val, true )
+            when 'kbdinteractiveauthentication' then
+                do_boolean( tag,  'KbdInteractiveAuthentication', val, true )
+            when 'kerberosauthentication' then
+                do_boolean( tag,  'KerberosAuthentication', val, true )
+            when 'maxauthtries' then
+                do_integer( tag,  'MaxAuthTries', val, true )
+            when 'maxsessions' then
+                do_integer( tag,  'MaxSessions', val, true )
+            when 'passwordauthentication' then
+                do_boolean( tag,  'PasswordAuthentication', val, true )
+            when 'permitemptypasswords' then
+                do_boolean( tag,  'PermitEmptyPasswords', val, true )
+            when 'permitopen' then
+                do_text( 'PermitOpen', val, true )
+            when 'permitrootlogin' then
+                do_permitrootlogin( tag, val, true )
+            when 'pubkeyauthentication' then
+                do_boolean( tag,  'PubkeyAuthentication', val, true )
+            when 'rhostsrsaauthentication' then
+                do_boolean( tag,  'RhostsRSAAuthentication', val, true )
+            when 'rhostsauthentication' then
+                do_boolean( tag,  'RhostsAuthentication', val, true )
+            when 'X11DisplayOffset' then
+                do_integer( tag,  'X11DisplayOffset', val, true )
+            when 'X11Forwarding' then
+                do_integer( tag,  'X11Forwarding', val, true )
+            when 'x11uselocalhost' then
+                do_integer( tag, 'X11UseLocalhost', val, true )
+           else
+                err_quit( tag, 'unknown option (' + var + ')' )
+        end
+        result += config_line
+    end
+    return result
+end
+
+# Iterate over the configuration options
+def process_ssh_config_host_hash(name, data)
+    tag = "Host[" + name + "]"
+    result = ""
+    data.sort.map do |var,val|
+        config_line = case var.downcase
+            when "addressfamily" then
+                do_addressfamily( tag, val, true )
+            when "batchmode" then
+                do_boolean( tag, "BatchMode", val, true )
+            when "bindaddress" then
+                do_text( "BindAddress", val, true )
+            when "challengeresponseauthentication" then
+                do_boolean( tag, "ChallengeResponseAuthentication", val, true )
+            when "checkhostip" then
+                do_boolean( tag, "CheckHostIP", val, true )
+            when "cipher" then
+                do_cipher( tag, val, true )
+            when "ciphers" then
+                do_ciphers( tag, val, true )
+            when "clearallforwardings" then
+                do_boolean( tag, "ClearAllForwardings", val, true )
+            when "compression" then
+                do_boolean( tag, "Compression", val, true )
+            when "compressionlevel" then
+                do_integer_range( tag, "CompressionLevel", val, 1, 9, true )
+            when "connectionattempts" then
+                do_integer( tag, "ConnectionAttempts", val, true )
+            when "connecttimeout" then
+                do_integer( tag, "ConnectTimeout", val, true )
+            when "controlmaster" then
+                do_controlmaster( tag, val, true )
+            when "controlpath" then
+                do_text( "ControlPath", val, true )
+            when "dynamicforward" then
+                do_text( "DynamicForward", val, true )
+            when "enablesshkeysign" then
+                do_boolean( tag, "EnableSSHKeysign", val, true )
+            when "escapechar" then
+                do_text( "EscapeChar", val, true )
+            when "exitonforwardfailure" then
+                do_boolean( tag, "ExitOnForwardFailure", val, true )
+            when "forwardagent" then
+                do_boolean( tag, "ForwardAgent", val, true )
+            when "forwardx11" then
+                do_boolean( tag, "ForwardX11", val, true )
+            when "forwardx11trusted" then
+                do_boolean( tag, "ForwardX11Trusted", val, true )
+            when "gatewayports" then
+                do_boolean( tag, "GatewayPorts", val, true )
+            when "globalknownhostsfile" then
+                do_text( "GlobalKnownHostsFile", val, true )
+            when "gssapiauthentication" then
+                do_boolean( tag, "GSSAPIAuthentication", val, true )
+            when "gssapikeyexchange" then
+                do_boolean( tag, "GSSAPIKeyExchange", val, true )
+            when "gssapiclientidentity" then
+                do_text( "GSSAPIClientIdentity", val, true )
+            when "gssapidelegatecredentials" then
+                do_boolean( tag, "GSSAPIDelegateCredentials", val, true )
+            when "gssapirenewalforcesrekey" then
+                do_boolean( tag, "GSSAPIRenewalForcesRekey", val, true )
+            when "gssapitrustdns" then
+                do_boolean( tag, "GSSAPITrustDns", val, true )
+            when "hashknownhosts" then
+                do_boolean( tag, "HashKnownHosts", val, true )
+            when "hostbasedauthentication" then
+                do_boolean( tag, "HostbasedAuthentication", val, true )
+            when "hostkeyalgorithms" then
+                do_text( "HostKeyAlgorithms", val, true )
+            when "hostkeyalias" then
+                do_text( "HostKeyAlias", val, true )
+            when "hostname" then
+                do_text( "Hostname", val, true )
+            when "identitiesonly" then
+                do_boolean( tag, "IdentitiesOnly", val, true )
+            when "identityfile" then
+                do_text( "IdentityFile", val, true )
+            when "kbdinteractiveauthentication" then
+                do_boolean( tag, "KbdInteractiveAuthentication", val, true )
+            when "kbdinteractivedevices" then
+                do_kbdinteractivedevices( tag, val, true )
+            when "localcommand" then
+                do_text( "LocalCommand", val, true )
+            when "localforward" then
+                do_text( "LocalForward", val, true )
+            when "loglevel" then
+                do_loglevel( tag, val, true )
+            when "macs" then
+                do_text( "MACs", val, true )
+            when "nohostauthenticationforlocalhost" then
+                do_boolean( tag, "NoHostAuthenticationForLocalhost", val, true )
+            when "numberofpasswordprompts" then
+                do_integer( tag, "NumberOfPasswordPrompts", val, true )
+            when "passwordauthentication" then
+                do_boolean( tag, "PasswordAuthentication", val, true )
+            when "permitlocalcommand" then
+                do_boolean( tag, "PermitLocalCommand", val, true )
+            when "pkcs11provider" then
+                do_text( "PKCS11Provider", val, true )
+            when "port" then
+                do_integer( tag, "Port", val, true )
+            when "preferredauthentications" then
+                do_text( "PreferredAuthentications", val, true )
+            when "protocol" then
+                do_integer_range( tag, "Protocol", val, 1, 2, true )
+            when "proxycommand" then
+                do_text( "ProxyCommand", val, true )
+            when "pubkeyauthentication" then
+                do_boolean( tag, "PubkeyAuthentication", val, true )
+            when "rekeylimit" then
+                do_text( "RekeyLimit", val, true )
+            when "remoteforward" then
+                do_text( "RemoteForward", val, true )
+            when "rhostsrsaauthentication" then
+                do_boolean( tag, "RhostsRSAAuthentication", val, true )
+            when "rsaauthentication" then
+                do_boolean( tag, "RSAAuthentication", val, true )
+            when "sendenv" then
+                do_sendenv( tag, val, true )
+            when "serveralivecountmax" then
+                do_integer( tag, "ServerAliveCountMax", val, true )
+            when "serveraliveinterval" then
+                do_integer( tag, "ServerAliveInterval", val, true )
+            when "stricthostkeychecking" then
+                do_strickthostkeychecking( tag, val, true )
+            when "stricthostkeychecking" then
+                do_boolean( tag, "StrictHostKeyChecking", val, true )
+            when "tcpkeepalive" then
+                do_boolean( tag, "TCPKeepAlive", true )
+            when "tunnel" then
+                do_tunnel( tag, val, true )
+            when "tunneldevice" then
+                do_text( "TunnelDevice", val, true )
+            when "useblacklistedkeys" then
+                do_boolean( tag, "UseBlackListedKeys", val, true )
+            when "useprivilegeport" then
+                do_boolean( tag, "UsePrivilegePort", val, true )
+            when "user" then
+                do_text( "User", val, true )
+            when "userknownhostsfile" then
+                do_text( "UserKnownHostsFile", val, true )
+            when "verifyhostkeydns" then
+                do_verifyhostkeydns( tag, val, true )
+            when "visualhostkey" then
+                do_boolean( tag, "VisualHostKey", val, true )
+            when "xauthlocation" then
+                do_text( "XAuthLocation", val, true )
+            else
+                err_quit( tag, 'unknown option (' + var + ')' )
+        end
+        result += config_line
+    end
+    return result
+end
+-%>

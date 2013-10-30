@@ -1,54 +1,54 @@
+<% 
+    # Import the functions we will be using
+    scope.function_template([File.dirname(__FILE__) + "/functions"])
+-%>
 # Puppet generated configuration file for ssh running on tcp/<%= port %>
 # See the sshd_config(5) manpage for details
 
 # What ports, IPs and protocols we listen for
-Port <%= port %>
+<%= do_integer( name, 'Port', port ) -%>
 
 # Use these options to restrict which interfaces/protocols sshd will bind to
 #ListenAddress ::
 #ListenAddress 0.0.0.0
 <% listenaddress.sort.each do |address| -%>
-ListenAddress <%= address %>
+<%= do_listenaddress( name, address ) -%>
 <% end -%>
 
 # IPv4, IPv6, or both (inet, inet6, any)
-AddressFamily <%= addressfamily %>
+<%= do_addressfamily( name, addressfamily ) -%>
 
 # Protocol version to use
-Protocol <%= protocol %>
+<%= do_integer_range( name, "Protocol", protocol, 1, 2 ) -%>
 
 # HostKeys for protocol version 2
-HostKey <%= rsakey %><%= suffix %>
-HostKey <%= dsakey %><%= suffix %>
+<%= do_text( "HostKey", rsakey + suffix ) -%>
+<%= do_text( "HostKey", dsakey + suffix ) -%>
 
-#Privilege Separation is turned on for security
+# Privilege Separation should be turned on for security
 UsePrivilegeSeparation yes
 
 # Ciphers that are permitted
-<% if ciphers -%>
-Ciphers <% c=''; ciphers.each do |cipher| -%><%= c -%><%= cipher %><% c=',' -%><% end %>
-<% end -%>
+<%= do_ciphers( name, ciphers ) -%>
 
 # File that contains the process ID of the SSH daemon
-PidFile /var/run/<%= sshd_name %><%= suffix %>.pid
+<%= do_text( 'PidFile', '/var/run/' + sshd_name + suffix + '.pid' ) -%>
 
 # The number of client alive messages which may be sent without
 # sshd(8) receiving any messages back from the client.
-ClientAliveCountMax <%= clientalivecountmax %>
+<%= do_integer( name, 'ClientAliveCountMax', clientalivecountmax ) -%>
 
 # The timeout interval in seconds after which if no data has been received
 # from the client, sshd(8) will send a message through the encrypted channel
 # to request a response from the client.
-ClientAliveInterval <%= clientaliveinterval %>
+<%= do_integer( name, 'ClientAliveInterval', clientaliveinterval ) -%>
 
 # Allow TCP forwarding
+<%= do_boolean( name, 'AllowTcpForwarding', allowtcpforwarding ) -%>
 <% if allowtcpforwarding -%>
-AllowTcpForwarding yes
 <% permitopen.sort.each do |address| -%>
 PermitOpen <%= address %>
 <% end -%>
-<% else -%>
-AllowTcpForwarding no
 <% end -%>
 
 # Lifetime and size of ephemeral version 1 server key
@@ -56,14 +56,14 @@ KeyRegenerationInterval 3600
 ServerKeyBits 2048
 
 # Logging
-SyslogFacility <%= syslogfacility %>
-LogLevel <%= log_level %>
+<%= do_syslogfacility( name, syslogfacility ) -%>
+<%= do_loglevel( name, log_level ) -%>
 
 # Authentication:
 LoginGraceTime 30
 
 <% if permitrootlogin -%>
-PermitRootLogin <%= permitrootlogin %>
+<%= do_permitrootlogin( name, permitrootlogin ) -%>
 <% else -%>
 PermitRootLogin no
 <% end -%>
@@ -71,11 +71,7 @@ PermitRootLogin no
 StrictModes yes
 
 RSAAuthentication no
-<% if pubkeyauthentication -%>
-PubkeyAuthentication yes
-<% else -%>
-PubkeyAuthentication no
-<% end -%>
+<%= do_boolean( name, 'PubkeyAuthentication', pubkeyauthentication ) -%>
 <% if authorizedkeysfile -%>
 AuthorizedKeysFile      <%= authorizedkeysfile %>
 <% else -%>
@@ -96,18 +92,10 @@ PermitEmptyPasswords no
 
 # Change to yes to enable challenge-response passwords (beware issues with
 # some PAM modules and threads)
-<% if challengresponseauthentication -%>
-ChallengeResponseAuthentication yes
-<% else -%>
-ChallengeResponseAuthentication no
-<% end -%>
+<%= do_boolean( name, 'ChallengeResponseAuthentication', challengresponseauthentication ) -%>
 
 # Change to no to disable tunnelled clear text passwords
-<% if passwordauthentication -%>
-PasswordAuthentication yes
-<% else -%>
-PasswordAuthentication no
-<% end -%>
+<%= do_boolean( name, 'PasswordAuthentication', passwordauthentication ) -%>
 
 # Kerberos options
 #KerberosAuthentication no
@@ -119,40 +107,23 @@ PasswordAuthentication no
 #GSSAPIAuthentication no
 #GSSAPICleanupCredentials yes
 
-<% if x11forwarding -%>
-X11Forwarding yes
-<% else -%>
-X11Forwarding no
-<% end -%>
+<%= do_boolean( name, 'X11Forwarding', x11forwarding ) -%>
 X11DisplayOffset 10
-<% if printmotd -%>
-PrintMotd yes
-<% else -%>
-PrintMotd no
-<% end -%>
-<% if printlastlog -%>
-PrintLastLog yes
-<% else -%>
-PrintLastLog no
-<% end -%>
-<% if tcpkeepalive -%>
-TCPKeepAlive yes
-<% else -%>
-TCPKeepAlive no
-<% end -%>
+<%= do_boolean( name, 'PrintMotd', printmotd ) -%>
+<%= do_boolean( name, 'PrintLastLog', printlastlog ) -%>
+<%= do_boolean( name, 'TCPKeepAlive', tcpkeepalive ) -%>
 #UseLogin no
 
 # Maximum number of open sessions per network connection
-MaxSessions <%= maxsessions %>
+<%= do_integer( name, 'MaxSessions', maxsessions ) -%>
 
 MaxStartups <%= maxstartups %>
 Banner <%= banner %>
 
-# Allow client to pass locale environment variables
 <% if acceptenv -%>
-AcceptEnv<% acceptenv.each do |env| -%> <%= env %><% end -%>
+# Allow client to pass locale environment variables
+<%= do_acceptenv( name, acceptenv ) -%>
 <% end %>
-
 <% if chrootdirectory -%>
 Subsystem sftp internal-sftp
 ChrootDirectory <%= chrootdirectory %>
@@ -175,11 +146,7 @@ ForceCommand <%= forcecommand %>
 # If you just want the PAM account and session checks to run without
 # PAM authentication, then enable this but set PasswordAuthentication
 # and ChallengeResponseAuthentication to 'no'.
-<% if usepam -%>
-UsePAM yes
-<% else -%>
-UsePAM no
-<% end -%>
+<%= do_boolean( name, 'UsePAM', usepam ) -%>
 <% end -%>
 <% if allowusers -%>
 
@@ -203,9 +170,7 @@ DenyGroups<% denygroups.each do |group| -%> <%= group %><% end -%>
 <% end %>
 
 # Match users
-<% match_users.sort.each do |user,hash| -%>
-Match User <%= user %>
-<% hash.sort.each do |var,val| -%>
-    <%= var %> <%= val %>
-<% end -%>
+<% match_users.sort.map do |string, data| -%>
+Match User <%= string %>
+<%= process_sshd_config_match_hash(string, data) %>
 <% end -%>

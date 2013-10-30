@@ -586,32 +586,12 @@ define ssh::server (
     require ssh::package
 
     # Parameter validation
+    # NOTE: Configuration file directive validation is handled
+    #       within the templates.  This validation is for flow
+    #       related parameters.
     if ! ( $ensure in [ 'absent','present' ] ) {
         fail( 'ensure must be "absent" or "present"' )
     }
-    if $allowtcpforwarding != true and $allowtcpforwarding != false {
-        fail( 'allowtcpforwarding must be "true" or "false"' )
-    }
-    case $permitrootlogin {
-        'no', 'yes', 'without-password', 'force-commands-only': {}
-        default: {
-            fail( 'PermitRootLogin must be "yes", "no", "without-password", or "force-commands-only"' )
-        }
-    }
-    if $x11forwarding != true and $x11forwarding != false {
-        fail( 'x11forwarding must be "true" or "false"' )
-    }
-    if $passwordauthentication != true and $passwordauthentication != false {
-        fail( 'passwordauthentication must be "true" or "false"' )
-    }
-    if $pubkeyauthentication != true and $pubkeyauthentication != false {
-        fail( 'pubkeyauthentication must be "true" or "false"' )
-    }
-    if $usepam != true and $usepam != false {
-        fail( 'usepam must be "true" or "false"' )
-    }
-
-### TODO: More parameter validation ###
 
     # These used to be parameters.  For the moment they will be defaults
     $rsakey = '/etc/ssh/ssh_host_rsa_key'
