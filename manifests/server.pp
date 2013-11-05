@@ -523,43 +523,25 @@
 #   limitations under the License.
 #
 define ssh::server (
-    $ensure                         = 'present',
-    $port                           = '22',
-    $maxsessions                    = '1',
-    $protocol                       = '2',
-    $banner                         = '/etc/issue.net',
-    $addressfamily                  = 'any',
-    $allowusers                     = false,
-    $allowhosts                     = false,
-    $allowgroups                    = false,
-    $authorizedkeysfile             = false,
-    $allowtcpforwarding             = false,
-    $chrootdirectory                = false,
-    $denygroups                     = false,
-    $permitrootlogin                = 'no',
-    $forcecommand                   = false,
-    $x11forwarding                  = false,
-    $maxstartups                    = '10:30:100',
-    $passwordauthentication         = true,
-    $pubkeyauthentication           = false,
-    $challengresponseauthentication = false,
-    $remove                         = false,
-    $printmotd                      = false,
-    $titlesuffix                    = false,
-    $tcpkeepalive                   = true,
-    $printlastlog                   = true,
-    $usepam                         = true,
-    $pamradiusauth                  = false,
-    $syslogfacility                 = 'AUTH',
-    $log_level                      = 'VERBOSE',
-    $acceptenv                      = [ 'LANG', 'LC_*' ],
-    $ciphers                        = [ 'aes256-ctr', 'aes192-ctr', 'aes128-ctr' ],
-    $clientalivecountmax            = '0',
-    $clientaliveinterval            = '300',
-    $listenaddress                  = [],
-    $permitopen                     = [],
-    $match_users                    = [],
-    $denyusers                      = [
+    $ensure                             = 'present',
+    $acceptenv                          = [ 'LANG', 'LC_*' ],
+    $addressfamily                      = 'any',
+    $allowagentforwarding               = true,
+    $allowgroups                        = false,
+    $allowhosts                         = false,
+    $allowtcpforwarding                 = false,
+    $allowusers                         = false,
+    $authorizedkeysfile                 = '%h/.ssh/authorized_keys',
+    $banner                             = '/etc/issue.net',
+    $challengresponseauthentication     = false,
+    $chrootdirectory                    = false,
+    $ciphers                            = [ 'aes256-ctr', 'aes192-ctr', 'aes128-ctr' ],
+    $clientalivecountmax                = '0',
+    $clientaliveinterval                = '300',
+    $compression                        = $ssh::default_compression,
+    $debianbanner                       = true,
+    $denygroups                         = false,
+    $denyusers                          = [
         'adm',       'admin',       'administrator', 'Administrator',
         'anonymous', 'apache',      'at',            'avahi',
         'backup',    'beagleindex', 'bin',           'cvs',
@@ -576,7 +558,69 @@ define ssh::server (
         'sys',       'test',        'testuser',      'user',
         'uucp',      'uuidd',       'webmaster',     'www',
         'www-data',  'wwwrun'
-    ]
+    ],
+    $dsakey                             = $ssh::default_dsakey,
+    $forcecommand                       = false,
+    $gatewayports                       = false,
+    $gssapiauthentication               = false,
+    $gssapikeyexchange                  = false,
+    $gssapicleanupcredentials           = true,
+    $gssapistrictacceptorcheck          = true,
+    $gssapistorecredentialsonrekey      = false,
+    $hostbasedauthentication            = false,
+    $hostbasedusesnamefrompacketonly    = false,
+    $hostcertificate                    = false,
+    $ignorerhosts                       = true,
+    $ignoreuserknownhosts               = false,
+    $kerberosauthentication             = false,
+    $kerberosgetafstoken                = false,
+    $kerberosorlocalpasswd              = true,
+    $kerberosticketcleanup              = true,
+    $keyregenerationinterval            = '3600',
+    $listenaddress                      = [],
+    $logingracetime                     = '30',
+    $log_level                          = 'VERBOSE',
+    $macs                               = [ 'hmac-sha1', 'hmac-sha1-96' ],
+    $match_address                      = [],
+    $match_group                        = [],
+    $match_host                         = [],
+    $match_users                        = [],
+    $maxauthtries                       = '6',
+    $maxsessions                        = '1',
+    $maxstartups                        = '10:30:100',
+    $pamradiusauth                      = false,
+    $passwordauthentication             = true,
+    $permitblacklistedkeys              = false,
+    $permitrootlogin                    = false,
+    $permitemptypasswords               = false,
+    $permitopen                         = [],
+    $permittunnel                       = false,
+    $permituserenvironment              = false,
+    $port                               = '22',
+    $printlastlog                       = true,
+    $printmotd                          = false,
+    $protocol                           = '2',
+    $pubkeyauthentication               = false,
+    $remove                             = false,
+    $revokedkeys                        = false,
+    $rhostsrsaauthentication            = false,
+    $rsaauthentication                  = false,
+    $rsakey                             = $ssh::default_rsakey,
+    $serverkeybits                      = '2048',
+    $strictmodes                        = true,
+    $syslogfacility                     = 'AUTH',
+    $subsystem                          = false,
+    $tcpkeepalive                       = true,
+    $titlesuffix                        = false,
+    $trustedusercakeys                  = false,
+    $usedns                             = true,
+    $uselogin                           = false,
+    $usepam                             = true,
+    $useprivilegeseparation             = true,
+    $x11displayoffset                   = '10',
+    $x11forwarding                      = false,
+    $x11uselocalhost                    = true,
+    $xauthlocation                      = '/usr/bin/xauth'
 )
 {
     # Make sure the client is installed
@@ -592,10 +636,6 @@ define ssh::server (
     if ! ( $ensure in [ 'absent','present' ] ) {
         fail( 'ensure must be "absent" or "present"' )
     }
-
-    # These used to be parameters.  For the moment they will be defaults
-    $rsakey = '/etc/ssh/ssh_host_rsa_key'
-    $dsakey = '/etc/ssh/ssh_host_dsa_key'
 
     # For port tcp/22, use the standard filenames.  For any other port
     # append the port number to the filenames
@@ -767,20 +807,24 @@ define ssh::server (
         }
 
         # Path to the SFTP server
-        $sftp_server = $::operatingsystem ? {
-            'centos'   => '/usr/lib/openssh/sftp-server',
-            'debian'   => '/usr/lib/openssh/sftp-server',
-            'fedora'   => '/usr/lib/openssh/sftp-server',
-            'freebsd'  => '/usr/libexec/sftp-server',
-            'openbsd'  => '/usr/libexec/sftp-server',
-            'opensuse' => '/usr/lib/ssh/sftp-server',
-            'redhat'   => '/usr/lib/openssh/sftp-server',
-            'sles'     =>  $::architecture ? {
-                'x86_64' => '/usr/lib64/ssh/sftp-server',
-                default  => '/usr/lib/ssh/sftp-server',
-            },
-            'ubuntu'   => '/usr/lib/openssh/sftp-server',
-            default    => '',
+        if $subsystem {
+            $sftp_server = $subsystem
+        } else {
+            $sftp_server = $::operatingsystem ? {
+                'centos'   => '/usr/lib/openssh/sftp-server',
+                'debian'   => '/usr/lib/openssh/sftp-server',
+                'fedora'   => '/usr/lib/openssh/sftp-server',
+                'freebsd'  => '/usr/libexec/sftp-server',
+                'openbsd'  => '/usr/libexec/sftp-server',
+                'opensuse' => '/usr/lib/ssh/sftp-server',
+                'redhat'   => '/usr/lib/openssh/sftp-server',
+                'sles'     =>  $::architecture ? {
+                    'x86_64' => '/usr/lib64/ssh/sftp-server',
+                    default  => '/usr/lib/ssh/sftp-server',
+                },
+                'ubuntu'   => '/usr/lib/openssh/sftp-server',
+                default    => '',
+            }
         }
 
         # Command to enable sshd at boot

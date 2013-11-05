@@ -86,6 +86,36 @@ def is_valid_ip(address)
     end
 end
 
+# array_to_string - convert an array to a delimited string
+def array_to_string(name, array, delimiter)
+    # Just return if we were passed 'false'
+    if ( ! array ) then
+        return
+    end
+
+    # Fail if we don't have an array
+    if ( ! array.kind_of?(Array) ) then
+        err_quit(name, 'array_to_string: must be an array')
+    end
+
+    # Just return if we have an empty array
+    if ( array.length == 0 ) then
+        return
+    end
+    
+    delim  = ""
+    string = ""
+
+    # Assemble the cipher list into a comma separated list
+    array.sort.each do |value|
+        string += delim + value
+        delim = delimiter
+    end
+
+    # Return the string
+    return string
+end
+
 #############################
 # OPTION SPECIFIC FUNCTIONS #
 #############################
@@ -169,6 +199,23 @@ def do_ciphers(name, value, indent=false)
     return do_indent(indent) + "Ciphers " + line + "\n"
 end
 
+# do_compression - process the "compression" option
+def do_compression(name, value, indent=false)
+    if !!value != value then
+        if value.downcase != 'delayed' then
+            err_quit( name, 'invalid compression (' + value.downcase + ')')
+        else
+            return do_indent(indent) + "Compression " + value.downcase + "\n"
+        end
+    end
+
+    if value then
+        return do_indent(indent) + "Compression yes\n"
+    else
+        return do_indent(indent) + "Compression no\n"
+    end
+end
+
 # do_controlmaster - Process the "controlmaster" option
 def do_controlmaster(name, value, indent=false)
     if !!value != value then
@@ -198,6 +245,39 @@ def do_gatewayports(name, value, indent=false)
         return do_indent(indent) + "GatewayPorts yes\n"
     end
     return do_indent(indent) + "GatewayPorts no\n"
+end
+
+# do_hostkey - Process the "hostkey" option
+def do_hostkey(name, value, indent=false)
+    # Just return if we were passed 'false'
+    if ( ! value ) then
+        return
+    end
+
+    # Use the default keys if we were passed 'true'
+    if ( !!value == value ) then
+        lines = ""
+        lines = lines + do_indent(indent) + "HostKey " + scope.lookupvar('ssh::default_dsakey') + suffix + "\n"
+        lines = lines + do_indent(indent) + "HostKey " + scope.lookupvar('ssh::default_rsakey') + suffix + "\n"
+        return lines
+    end
+
+    # Process the array if we have on
+    if ( value.kind_of?(Array) ) then
+        # Just return if we have an empty array
+        if ( value.length == 0 ) then
+            return
+        end
+
+        lines = ""
+        value.sort.each do |hostkey|
+            lines = lines + do_indent(indent) + "HostKey " + hostkey + "\n"
+        end
+        return lines
+    end
+
+    # we weren't passed true, false, or an array
+    err_quit(name, 'invalid hostkey (' + value + ')')
 end
 
 # do_kbdinteractivedevices - Process the "kbdinteractivedevices" option
@@ -236,6 +316,47 @@ def do_loglevel(name, value, indent=false)
     return do_indent(indent) + "LogLevel " + value.upcase + "\n"
 end
 
+# do_macs - Process the "macs" option
+def do_macs(name, value, indent=false)
+    # Just return if we were passed 'false'
+    if ( ! value ) then
+        return
+    end
+
+    # Fail if we don't have an array
+    if ( ! value.kind_of?(Array) ) then
+        err_quit(name, 'invalid macs: must be an array')
+    end
+
+    # Just return if we have an empty array
+    if ( value.length == 0 ) then
+        return
+    end
+
+    valid_macs = Hash.new
+    valid_macs["hmac-md5"]            = 1
+    valid_macs["hmac-sha1"]           = 1
+    valid_macs["umac-64@openssh.com"] = 1
+    valid_macs["hmac-ripemd160"]      = 1
+    valid_macs["hmac-sha1-96"]        = 1
+    valid_macs["hmac-md5-96"]         = 1
+
+    delim = ""
+    line  = ""
+
+    # Assemble the MAC list into a comma separated list
+    value.sort.each do |mac|
+        if ( ! valid_macs[mac] ) then
+            err_quit( name, 'invalid mac in macs list (' + mac + ')')
+        end
+        line += delim + mac
+        delim = ","
+    end
+
+    # Return the result
+    return do_indent(indent) + "MACs " + line + "\n"
+end
+
 # do_permitrootlogin - Process the "permitrootlogin" option
 def do_permitrootlogin(name, value, indent=false)
     if !!value != value then
@@ -250,6 +371,21 @@ def do_permitrootlogin(name, value, indent=false)
         return do_indent(indent) + "PermitRootLogin yes\n"
     end
     return do_indent(indent) + "PermitRootLogin no\n"
+end
+
+# do_permittunnel - Process the "permittunnel" option
+def do_permittunnel(name, value, indent=false)
+    if !!value != value then
+        if value.downcase != "point-to-point" && value.downcase != "ethernet" then
+            err_quit(name, 'invalid permittunnel (' + value.downcase + ')')
+        else
+            return do_indent(indent) + "PermitTunnel " + value.downcase + "\n"
+        end 
+    end
+    if value then
+        return do_indent(indent) + "PermitTunnel yes\n"
+    end
+    return do_indent(indent) + "PermitTunnel no\n"
 end
 
 # do_sendenv - Process the "sendenv" option
@@ -422,7 +558,7 @@ def process_ssh_config_host_hash(name, data)
             when "clearallforwardings" then
                 do_boolean( tag, "ClearAllForwardings", val, true )
             when "compression" then
-                do_boolean( tag, "Compression", val, true )
+                do_compression( tag, val, true )
             when "compressionlevel" then
                 do_integer_range( tag, "CompressionLevel", val, 1, 9, true )
             when "connectionattempts" then

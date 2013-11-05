@@ -10,7 +10,42 @@ Example
         class { 'ssh::client': }
         ssh::server { 'default': }
         ssh::server { 'special': port => 2222 }
+        ssh::server { 'forwarder':
+            port               => 2212,
+            allowtcpforwarding => true,
+            x11forwarding      => true,
+        }
     }
+
+About this module
+-----------------
+
+Q: Why is this thing so complex?
+
+This started out as an experiment to see how granular Puppet could manage a
+particular service. 
+
+Q: What the heck did you do to sshd_config?
+
+The resulting sshd_config looks nothing like the sshd_config format you may be
+used to.  Because this module manages all configuration options it became
+obvious early on that they would need to be explicitly set in sshd_config.
+This is largely due to an inability (either with puppet or my own abilities)
+to process an undefined boolean variable (e.g. undefined = false).  Since
+sshd_config does not really have any formal layout to it the decision was made
+to arrange the options in alphabetical order.  The only exception to this are
+the Match blocks which are at the end of the file.
+
+Q: Why are the defaults so draconian?
+
+This module was written with security auditing in mind.  The defaults were
+chosen to comply with various best practices such as CIS Benchmarks, vendor
+guidance, etc.  The idea is that by not specifying any parameters in your
+ssh::server call (e.g. ssh::server { 'default': }) you can assert that the
+configuration follows best practices.  Then by setting the parameters, your
+deviations from the baseline become self-documenting.  An auditor should then
+be able to audit the default baseline configuration then simply observe the
+deviations, if any, within the node definition.
 
 Packaging
 ---------
@@ -24,8 +59,15 @@ directory (e.g. /usr/src/puppet-ssh).
 The resulting tarball will be named foolean-ssh-$VER.tar.gz and can be found
 in the "pkg" directory within the source tree.
 
-Installation and Upgrade
+PuppetForge Installation
 ------------------------
+
+Foolean SSH is on PuppetLab's PuppetForge making installation as simple as:
+
+    puppet module install foolean/ssh
+
+Manual Installation
+-------------------
 
 When we're installing from a tarball the installation and upgrade process
 is the same.  You'll need to set --modulepath if f you're installing the
@@ -76,6 +118,23 @@ due to Puppet's natural ordering mechanisms.  All attempts to force order
 did not work.  As a result the decision was made to make the ssh_known_hosts
 file a template only and leave the use of sshkey up to the administrator to
 create the necessary local classes.
+
+To Do
+-----
+
+* Validate the recent change to comprehensively manage all configuration
+  options against all operating systems.  Currently Debian has the most
+  testing time.  Feel free to open an issue if you discover something on
+  an operating system that hasn't been fully tested.
+
+* Centralized default variables would make management of the defaults and
+  their representation in the comments a bit easier.
+
+* Parameter validation for the PermitOpen option
+
+* Collapse match_user, match_group, match_host, and match_address into a
+  single hash-of-hashes-of-hashes.
+  ( This one is still under consideration )
 
 License
 -------
