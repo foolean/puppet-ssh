@@ -320,7 +320,6 @@ ForceCommand <%= forcecommand %>
 #   [ Puppet default is: false (not defined) ]
 HostCertificate <%= hostcertificate %>
 <% end -%>
-<% if rsakey || dsakey -%>
 
 # HostKey
 #   Specifies a file containing a private host key used by SSH.  The
@@ -330,13 +329,8 @@ HostCertificate <%= hostcertificate %>
 #   file if it is group/world-accessible.  It is possible to have
 #   multiple host key files.  “rsa1” keys are used for version 1
 #   and “dsa” or “rsa” are used for version 2 of the SSH protocol.
-<% if rsakey -%>
-HostKey <%= rsakey + suffix %>
-<% end -%>
-<% if dsakey -%>
-HostKey <%= dsakey + suffix %>
-<% end -%>
-<% end -%>
+HostKey <%= rsakey %>
+HostKey <%= dsakey %>
 
 # IgnoreRhosts
 #   Specifies that .rhosts and .shosts files will not be used in

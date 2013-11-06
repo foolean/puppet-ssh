@@ -73,12 +73,6 @@ class ssh {
     $site_path         = "${settings::vardir}/sites/${site_name}/${site_env}"
     $site_private_path = "${site_path}/private/${::fqdn}"
 
-    # Default host keys
-    $default_rsakey = '/etc/ssh/ssh_host_rsa_key'
-    $default_dsakey = '/etc/ssh/ssh_host_dsa_key'
-
-    $default_compression = 'delayed'
-
     # Set the user for file ownership
     $user = $::operatingssytem ? {
         default => 'root',
