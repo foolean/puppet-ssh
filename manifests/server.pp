@@ -989,138 +989,136 @@ define ssh::server (
             }
 
             # Generate the RSA key if it doesn't exist
-            exec { "generate-${rsakey}":
+            exec { "generate-${rsakey}${suffix}":
                 path    => [ '/usr/bin' ],
-                command => "ssh-keygen -t rsa -b 2048 -f ${rsakey}",
+                command => "ssh-keygen -t rsa -b 2048 -f ${rsakey}${suffix}",
                 creates => "${rsakey}",
+                notify  => Service["${sshd_service}${suffix}"],
+                require => Package['ssh-server-package'],
+            }
+
+            # Generate the DSA key if it doesn't exist
+            exec { "generate-${dsakey}${suffix}":
+                path    => [ '/usr/bin' ],
+                command => "ssh-keygen -t dsa -b 1024 -f ${dsakey}${suffix}",
+                creates => "${dsakey}",
                 notify  => Service["${sshd_service}${suffix}"],
                 require => Package['ssh-server-package'],
             }
 
             # Copy the RSA host private key
             $rsa_pri_key = file(
-                "${ssh::site_private_path}/${rsakey}",
-                "${settings::vardir}/private/${::fqdn}/${rsakey}",
-                "${settings::vardir}/hosts/${::fqdn}/${rsakey}",
-                "${settings::vardir}/nodefile/${::fqdn}/${rsakey}",
-                "${settings::vardir}/dist/${::fqdn}/${rsakey}",
+                "${ssh::site_private_path}/${rsakey}${suffix}",
+                "${settings::vardir}/private/${::fqdn}/${rsakey}${suffix}",
+                "${settings::vardir}/hosts/${::fqdn}/${rsakey}${suffix}",
+                "${settings::vardir}/nodefile/${::fqdn}/${rsakey}${suffix}",
+                "${settings::vardir}/dist/${::fqdn}/${rsakey}${suffix}",
                 '/dev/null'
             )
             if ( $rsa_pri_key ) {
-                file { $rsakey:
+                file { "${rsakey}${suffix}":
                     mode    => '0400',
                     owner   => $ssh::user,
                     group   => $ssh::group,
                     content => $rsa_pri_key,
-                    notify  => Service["${sshd_service}"],
+                    notify  => Service["${sshd_service}${suffix}"],
                     require => [
                         Package['ssh-server-package'],
-                        Exec["generate-${rsakey}"],
+                        Exec["generate-${rsakey}${suffix}"],
                     ],
                 }
             } else {
-                file { "${rsakey}":
+                file { "${rsakey}${suffix}":
                     mode  => '0400',
                     owner => $ssh::user,
                     group => $ssh::group,
                 }
             }
-    
+
             # Copy the RSA host public key
             $rsa_pub_key = file(
-                "${ssh::site_private_path}/${rsakey}.pub",
-                "${settings::vardir}/private/${::fqdn}/${rsakey}.pub",
-                "${settings::vardir}/hosts/${::fqdn}/${rsakey}.pub",
-                "${settings::vardir}/nodefile/${::fqdn}/${rsakey}.pub",
-                "${settings::vardir}/dist/${::fqdn}/${rsakey}.pub",
+                "${ssh::site_private_path}/${rsakey}${suffix}.pub",
+                "${settings::vardir}/private/${::fqdn}/${rsakey}${suffix}.pub",
+                "${settings::vardir}/hosts/${::fqdn}/${rsakey}${suffix}.pub",
+                "${settings::vardir}/nodefile/${::fqdn}/${rsakey}${suffix}.pub",
+                "${settings::vardir}/dist/${::fqdn}/${rsakey}${suffix}.pub",
                 '/dev/null'
             )
             if ( $rsa_pub_key ) {
-                file { "${rsakey}.pub":
+                file { "${rsakey}${suffix}.pub":
                     mode    => '0444',
                     owner   => $ssh::user,
                     group   => $ssh::group,
                     content => $rsa_pub_key,
-                    notify  => Service["${sshd_service}"],
+                    notify  => Service["${sshd_service}${suffix}"],
                     require => [
                         Package['ssh-server-package'],
-                        Exec["generate-${rsakey}"],
+                        Exec["generate-${rsakey}${suffix}"],
                     ],
                 }
             } else {
-                file { "${rsakey}.pub":
+                file { "${rsakey}${suffix}.pub":
                     mode  => '0444',
                     owner => $ssh::user,
                     group => $ssh::group,
                 }
             }
 
-            # Generate the DSA key if it doesn't exist
-            if ( $dsakey ) {
-                exec { "generate-${dsakey}":
-                    path    => [ '/usr/bin' ],
-                    command => "ssh-keygen -t dsa -b 1024 -f ${dsakey}",
-                    creates => "${dsakey}",
+            # Copy the DSA host private key
+            $dsa_pri_key = file(
+                "${ssh::site_private_path}/${dsakey}${suffix}",
+                "${settings::vardir}/private/${::fqdn}/${dsakey}${suffix}",
+                "${settings::vardir}/hosts/${::fqdn}/${dsakey}${suffix}",
+                "${settings::vardir}/nodefile/${::fqdn}/${dsakey}${suffix}",
+                "${settings::vardir}/dist/${::fqdn}/${dsakey}${suffix}",
+                '/dev/null'
+            )
+            if ( $dsa_pri_key ) {
+                file { "$dsakey}${suffix}":
+                    mode    => '0400',
+                    owner   => $ssh::user,
+                    group   => $ssh::group,
+                    content => $dsa_pri_key,
                     notify  => Service["${sshd_service}${suffix}"],
-                    require => Package['ssh-server-package'],
+                    require => [
+                        Package['ssh-server-package'],
+                        Exec["generate-${dsakey}${suffix}"],
+                    ],
                 }
+            } else {
+                file { "${dsakey}${suffix}":
+                    mode  => '0400',
+                    owner => $ssh::user,
+                    group => $ssh::group,
+                }
+            }
 
-                # Copy the DSA host private key
-                $dsa_pri_key = file(
-                    "${ssh::site_private_path}/${dsakey}",
-                    "${settings::vardir}/private/${::fqdn}/${dsakey}",
-                    "${settings::vardir}/hosts/${::fqdn}/${dsakey}",
-                    "${settings::vardir}/nodefile/${::fqdn}/${dsakey}",
-                    "${settings::vardir}/dist/${::fqdn}/${dsakey}",
-                    '/dev/null'
-                )
-                if ( $dsa_pri_key ) {
-                    file { "$dsakey}":
-                        mode    => '0400',
-                        owner   => $ssh::user,
-                        group   => $ssh::group,
-                        content => $dsa_pri_key,
-                        notify  => Service["${sshd_service}${suffix}"],
-                        require => [
-                            Package['ssh-server-package'],
-                            Exec["generate-${dsakey}"],
-                        ],
-                    }
-                } else {
-                    file { "${dsakey}":
-                        mode  => '0400',
-                        owner => $ssh::user,
-                        group => $ssh::group,
-                    }
+            # Copy the DSA host public key
+            $dsa_pub_key = file(
+                "${ssh::site_private_path}/${dsakey}${suffix}.pub",
+                "${settings::vardir}/private/${::fqdn}/${dsakey}${suffix}.pub",
+                "${settings::vardir}/hosts/${::fqdn}/${dsakey}${suffix}.pub",
+                "${settings::vardir}/nodefile/${::fqdn}/${dsakey}${suffix}.pub",
+                "${settings::vardir}/dist/${::fqdn}/${dsakey}${suffix}.pub",
+                '/dev/null'
+            )
+            if ( $dsa_pub_key ) {
+                file { "${dsakey}${suffix}.pub":
+                    mode    => '0444',
+                    owner   => $ssh::user,
+                    group   => $ssh::group,
+                    content => $dsa_pub_key,
+                    notify  => Service["${sshd_service}${suffix}"],
+                    require => [
+                        Package['ssh-server-package'],
+                        Exec["generate-${dsakey}${suffix}"],
+                    ],
                 }
-    
-                # Copy the DSA host public key
-                $dsa_pub_key = file(
-                    "${ssh::site_private_path}/${dsakey}.pub",
-                    "${settings::vardir}/private/${::fqdn}/${dsakey}.pub",
-                    "${settings::vardir}/hosts/${::fqdn}/${dsakey}.pub",
-                    "${settings::vardir}/nodefile/${::fqdn}/${dsakey}.pub",
-                    "${settings::vardir}/dist/${::fqdn}/${dsakey}.pub",
-                    '/dev/null'
-                )
-                if ( $dsa_pub_key ) {
-                    file { "${dsakey}.pub":
-                        mode    => '0444',
-                        owner   => $ssh::user,
-                        group   => $ssh::group,
-                        content => $dsa_pub_key,
-                        notify  => Service["${sshd_service}${suffix}"],
-                        require => [
-                            Package['ssh-server-package'],
-                            Exec["generate-${dsakey}"],
-                        ],
-                    }
-                } else {
-                    file { "${dsakey}.pub":
-                        mode  => '0444',
-                        owner => $ssh::user,
-                        group => $ssh::group,
-                    }
+            } else {
+                file { "${dsakey}${suffix}.pub":
+                    mode  => '0444',
+                    owner => $ssh::user,
+                    group => $ssh::group,
                 }
             }
 
@@ -1188,8 +1186,8 @@ define ssh::server (
                                 File["${sshd_config}${suffix}"],
                                 File["${sshd_binary}${suffix}"],
                                 Exec["add-runlevels-${sshd_service}${suffix}"],
-                                Exec["generate-${rsakey}"],
-                                Exec["generate-${dsakey}"],
+                                Exec["generate-${rsakey}${suffix}"],
+                                Exec["generate-${dsakey}${suffix}"],
                             ],
             }
         } else {
