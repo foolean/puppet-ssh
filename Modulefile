@@ -1,5 +1,5 @@
 name    'foolean-ssh'
-version '1.0.13'
+version '1.0.14'
 
 author  'bennett@foolean.org'
 summary 'Manage ssh client and multiple daemons'
