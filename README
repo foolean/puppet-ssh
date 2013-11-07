@@ -3,6 +3,7 @@ ssh
 The ssh module is a collection of classes and defines that facilitate
 the configuration of the ssh client and multiple listening ssh daemons.
 
+
 Example
 -------
 
@@ -17,10 +18,11 @@ Example
         }
     }
 
+
 About this module
 -----------------
 
-Q: Why is this thing so complex?
+Q: What's with having every possible SSH configuration option?
 
 This started out as an experiment to see how granular Puppet could manage a
 particular service. 
@@ -36,7 +38,7 @@ sshd_config does not really have any formal layout to it the decision was made
 to arrange the options in alphabetical order.  The only exception to this are
 the Match blocks which are at the end of the file.
 
-Q: Why are the defaults so draconian?
+Q: What's with the defaults?
 
 This module was written with security auditing in mind.  The defaults were
 chosen to comply with various best practices such as CIS Benchmarks, vendor
@@ -46,6 +48,7 @@ configuration follows best practices.  Then by setting the parameters, your
 deviations from the baseline become self-documenting.  An auditor should then
 be able to audit the default baseline configuration then simply observe the
 deviations, if any, within the node definition.
+
 
 Packaging
 ---------
@@ -59,12 +62,14 @@ directory (e.g. /usr/src/puppet-ssh).
 The resulting tarball will be named foolean-ssh-$VER.tar.gz and can be found
 in the "pkg" directory within the source tree.
 
+
 PuppetForge Installation
 ------------------------
 
 Foolean SSH is on PuppetLab's PuppetForge making installation as simple as:
 
     puppet module install foolean/ssh
+
 
 Manual Installation
 -------------------
@@ -79,6 +84,21 @@ module in a path other than the location defined in puppet.conf.
         --ignore-dependencies     \
         --module-path $MODULEPATH \
         $PATHTO/foolean-ssh-$VER.tar.gz
+
+
+Class and Define Documentation
+------------------------------
+
+The individual class and define files have been documented using Puppet's rdoc
+format.  You can view the documentation by opening the files in your favorite
+reader or by using the 'puppet doc' command.  For a man(1)-like behavior, pipe
+it to less.
+
+    puppet doc $path_to/ssh/manifests/server.pp | less
+
+For more information on Manifest Documentation see:
+http://projects.puppetlabs.com/projects/puppet/wiki/Puppet_Manifest_Documentation
+
 
 Managing Server Host Keys
 -------------------------
@@ -105,6 +125,18 @@ it was decided that doing so would make the node definition too difficult to
 read.  This concept will be revisited in the future when it is made Heira
 aware.
 
+There are currently two parameters used to establish keys (rsakey and dsakey).
+Each daemon can use the same default key or you may specify the full path to
+key files if you want a specific daemon to use its own unique key.
+
+Example:
+    ssh::server { 'special':
+        port   => 1234,
+        rsakey => '/etc/ssh/ssh_host_rsa_key_special',
+        dsakey => '/etc/ssh/ssh_host_dsa_key_special',
+    }
+
+
 Limitations
 -----------
 
@@ -118,6 +150,7 @@ due to Puppet's natural ordering mechanisms.  All attempts to force order
 did not work.  As a result the decision was made to make the ssh_known_hosts
 file a template only and leave the use of sshkey up to the administrator to
 create the necessary local classes.
+
 
 To Do
 -----
@@ -136,6 +169,9 @@ To Do
   single hash-of-hashes-of-hashes.
   ( This one is still under consideration )
 
+* Find and fix all of the "copy pasta" that is sure to exist
+
+
 License
 -------
 
@@ -152,6 +188,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
 
 Contact
 -------

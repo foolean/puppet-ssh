@@ -25,6 +25,12 @@
 #   Valid arguments are "any", "inet" (use IPv4 only),  or
 #   "inet6" (use IPv6 only).  The default is "any"
 #
+# [*allowagentforwarding*]
+#   Specifies whether ssh-agent(1) forwarding is permitted.
+#   The default is 'yes'.  Note that disabling agent forwarding does not
+#   improve security unless users are also denied shell access, as they
+#   can always install their own forwarders.
+#
 # [*allowgroups*]
 #   This keyword can be followed by an array of group name patterns
 #   If specified, login is allowed only for users whose primary group
@@ -44,9 +50,8 @@
 #   This keyword can be followed by an array of host and/or network
 #   patterns.  If specified, iptables rules are created to restrict
 #   access to be only from the defined sources.
-#   Note: the iptables class must be defined before
-#         this will be enforced.
-#
+#   Note: the iptables class must be defined before this will be enforced.
+#        
 # [*allowusers*]
 #   This keyword can be followed by an array of user name patterns.
 #   If specified, login is allowed only for user names that match
@@ -145,6 +150,15 @@
 #   not be sent to the client.  This option applies to protocol
 #   version 2 only.  The default is 300.
 #
+# [*compression*]
+#   Specifies whether compression is allowed, or delayed until the user has
+#   authenticated successfully.  The argument must be 'yes', 'delayed', or
+#   'no'.  The default is 'delayed'.
+#
+# [*debianbanner*]
+#   Specifies whether the distribution-specified extra version suffix is
+#   included during initial protocol handshake.  The default is 'yes'.
+#
 # [*denygroups*]
 #   This keyword can be followed by an array of group name patterns.
 #   Login is disallowed for users whose primary group or supplementary
@@ -203,6 +217,113 @@
 #   server that requires no support files when used with
 #   ChrootDirectory.
 #
+# [*gatewayports*]
+#   Specifies whether remote hosts are allowed to connect to ports forwarded
+#   for the client.  By default, sshd(8) binds remote port forwardings to the
+#   loopback address.  This prevents other remote hosts from connecting to
+#   forwarded ports.  GatewayPorts can be used to specify that sshd should
+#   allow remote port forwardings to bind to non-loopback addresses, thus
+#   allowing other hosts to connect.  The argument may be 'false' to force remote
+#   port forwardings to be available to the local host only, 'true' to force
+#   remote port forwardings to bind to the wildcard address, or
+#   'clientspecified' to allow the client to select the address to which the
+#   forwarding is bound.  The default is 'false'.
+#
+# [*gssapiauthentication*]
+#   Specifies whether user authentication based on GSSAPI is allowed.
+#   The default is 'no'.  Note that this option applies to protocol
+#   version 2 only.
+#
+# [*gssapikeyexchange*]
+#   Specifies whether key exchange based on GSSAPI is allowed. GSSAPI
+#   key exchange doesn't rely on ssh keys to verify host identity.
+#   The default is 'no'.  Note that this option applies to protocol
+#   version 2 only.
+#
+# [*gssapicleanupcredentials*]
+#   Specifies whether to automatically destroy the user's credentials
+#   cache on logout.  The default is 'yes'.  Note that this option
+#   applies to protocol version 2 only.
+#
+# [*gssapistrictacceptorcheck*]
+#   Determines whether to be strict about the identity of the GSSAPI
+#   acceptor a client authenticates against. If 'yes' then the client
+#   must authenticate against the host service on the current
+#   hostname. If 'no' then the client may authenticate against any
+#   service key stored in the machine's default store. This facility
+#   is provided to assist with operation on multi homed machines.
+#   The default is 'yes'.  Note that this option applies only to
+#   protocol version 2 GSSAPI connections, and setting it to 'no' may
+#   only work with recent Kerberos GSSAPI libraries.
+#
+# [*gssapistorecredentialsonrekey*]
+#   Controls whether the user's GSSAPI credentials should be updated
+#   following a successful connection rekeying. This option can be
+#   used to accepted renewed or updated credentials from a compatible
+#   client. The default is 'no'.
+#
+# [*hostbasedauthentication*]
+#   Specifies whether rhosts or /etc/hosts.equiv authentication
+#   together with successful public key client host authentication is
+#   allowed (host-based authentication).  This option is similar to
+#   RhostsRSAAuthentication and applies to protocol version 2 only.
+#   The default is 'no'.
+#
+# [*hostbasedusesnamefrompacketonly*]
+#   Specifies whether or not the server will attempt to perform a reverse
+#   name lookup when matching the name in the ~/.shosts, ~/.rhosts, and
+#   /etc/hosts.equiv files during HostbasedAuthentication.  A setting of
+#   'yes' means that sshd(8) uses the name supplied by the client rather
+#   than attempting to resolve the name from the TCP connection itself.
+#   The default is 'no'.
+#
+# [*hostcertificate*]
+#   Specifies a file containing a public host certificate.  The
+#   certificate's public key must match a private host key already
+#   specified by HostKey.  The default behaviour of sshd(8) is not to
+#   load any certificates.
+#
+# [*ignorerhosts*]
+#   Specifies that .rhosts and .shosts files will not be used in
+#   RhostsRSAAuthentication or HostbasedAuthentication.
+#
+#   /etc/hosts.equiv and /etc/ssh/shosts.equiv are still used.
+#   The default is 'yes'.
+#
+# [*ignoreuserknownhosts*]
+#   Specifies whether sshd(8) should ignore the user's
+#   ~/.ssh/known_hosts during RhostsRSAAuthentication or
+#   HostbasedAuthentication.  The default is 'no'.
+#
+# [*kerberosauthentication*]
+#   Specifies whether the password provided by the user for
+#   PasswordAuthentication will be validated through the Kerberos
+#   KDC.  To use this option, the server needs a Kerberos servtab
+#   which allows the verification of the KDC's identity.
+#   The default is 'no'.
+#
+# [*kerberosgetafstoken*]
+#   If AFS is active and the user has a Kerberos 5 TGT, attempt to
+#   acquire an AFS token before accessing the user's home directory.
+#   The default is 'no'.
+#
+# [*kerberosorlocalpasswd*]
+#   If password authentication through Kerberos fails then the
+#   password will be validated via any additional local mechanism
+#   such as /etc/passwd.  The default is 'yes'.
+#
+# [*kerberosticketcleanup*]
+#   Specifies whether to automatically destroy the user's ticket
+#   cache file on logout.  The default is 'yes'.
+#
+# [*keyregenerationinterval*]
+#   In protocol version 1, the ephemeral server key is automatically
+#   regenerated after this many seconds (if it has been used).  The
+#   purpose of regeneration is to prevent decrypting captured
+#   sessions by later breaking into the machine and stealing the
+#   keys.  The key is never stored anywhere.  If the value is 0, the
+#   key is never regenerated.  The default is 3600 (seconds).
+#
 # [*listenaddress*]
 #   Specifies the local addresses sshd(8) should listen on.  The
 #   following forms may be used:
@@ -217,6 +338,11 @@
 #   Additionally, any Port options must precede this option for non-
 #   port qualified addresses.
 #
+# [*logingracetime*]
+#   The server disconnects after this time if the user has not
+#   successfully logged in.  If the value is 0, there is no time
+#   limit.  The default is 120 seconds.
+#
 # [*log_level*]
 #   Gives the verbosity level that is used when logging messages from
 #   sshd(8).  The possible values are: QUIET, FATAL, ERROR, INFO,
@@ -225,8 +351,31 @@
 #   higher levels of debugging output.  Logging with a DEBUG level
 #   violates the privacy of users and is not recommended.
 #
+# [*macs*]
+#   Specifies the available MAC (message authentication code)
+#   algorithms.  The MAC algorithm is used in protocol version 2 for data
+#   integrity protection.  Multiple algorithms must be comma-separated.  The
+#   default is:
+#
+#       hmac-md5,hmac-sha1,umac-64@openssh.com,
+#       hmac-ripemd160,hmac-sha1-96,hmac-md5-96
+#
+# [*match_address*]
+#   Default: empty
+#
+# [*match_groups*]
+#   Default: empty
+#
+# [*match_hosts*]
+#   Default: empty
+#
 # [*match_users*]
 #   Default: empty
+#
+# [*maxauthtries*]
+#   Specifies the maximum number of authentication attempts permitted
+#   per connection.  Once the number of failures reaches half this
+#   value, additional failures are logged.  The default is 6.
 #
 # [*maxsessions*]
 #   Specifies the maximum number of open sessions permitted per
@@ -239,12 +388,12 @@
 #   expires for a connection.  The default is 10:30:100.
 #
 #   Alternatively, random early drop can be enabled by specifying
-#   the three colon separated values “start:rate:full” (e.g. "10:30:60").
+#   the three colon separated values 'start:rate:full' (e.g. "10:30:60").
 #   sshd(8) will refuse connection attempts with a probability of
-#   “rate/100” (30%) if there are currently “start” (10) unauthenticated
+#   'rate/100' (30%) if there are currently 'start' (10) unauthenticated
 #   connections.  The probability increases linearly and all connection
 #   attempts are refused if the number of unauthenticated connections
-#   reaches “full” (60).
+#   reaches 'full' (60).
 #
 # [*pamradiusauth*]
 #   Specifies whether RADIUS authentication is to be included in the
@@ -253,6 +402,18 @@
 # [*passwordauthentication*]
 #   Specifies whether password authentication is allowed.  The
 #   default is 'true'.
+#
+# [*permitblacklistedkeys*]
+#   Specifies whether sshd(8) should allow keys recorded in its
+#   blacklist of known-compromised keys (see ssh-vulnkey(1)).  If
+#   'yes', then attempts to authenticate with compromised keys will
+#   be logged but accepted.  If 'no', then attempts to authenticate
+#   with compromised keys will be rejected.  The default is 'no'.
+#
+# [*permitemptypasswords*]
+#   When password authentication is allowed, it specifies whether the
+#   server allows login to accounts with empty password strings.  The
+#   default is 'no'.
 #
 # [*permitopen*]
 #   Specifies the destinations to which TCP port forwarding is
@@ -272,17 +433,30 @@
 # [*permitrootlogin*]
 #   Specifies whether root can log in using ssh(1).  The argument
 #   Specifies whether root can log in using ssh(1).  The argument
-#   must be “yes”, “without-password”, “forced-commands-only”, or
-#   “no”.  The default is “yes”.
+#   must be 'yes', 'without-password', 'forced-commands-only', or
+#   'no'.  The default is 'yes'.
 #
-#   If this option is set to “without-password”, password authentication
-#   is disabled for root. If this option is set to “forced-commands-only”,
+#   If this option is set to 'without-password', password authentication
+#   is disabled for root. If this option is set to 'forced-commands-only',
 #   root login with public key authentication will be allowed, but only
 #   if the command option has been specified (which may be useful for
 #   taking remote backups even if root login is normally not allowed).
 #   All other authentication methods are disabled for root.
 #
-#   If this option is set to “no”, root is not allowed to log in.
+#   If this option is set to 'no', root is not allowed to log in.
+#
+# [*permittunnel*]
+#   Specifies whether tun(4) device forwarding is allowed.  The
+#   argument must be 'yes', 'point-to-point' (layer 3), 'ethernet'
+#   (layer 2), or 'no'.  Specifying 'yes' permits both
+#   'point-to-point' and 'ethernet'.  The default is 'no'.
+#
+# [*permituserenvironment*]
+#   Specifies whether ~/.ssh/environment and environment= options in
+#   ~/.ssh/authorized_keys are processed by sshd(8).  The default is
+#   'no'.  Enabling environment processing may enable users to bypass
+#   access restrictions in some configurations using mechanisms such as
+#   LD_PRELOAD.
 #
 # [*port*]
 #   Specifies the port number that sshd(8) listens on.  The default
@@ -312,10 +486,53 @@
 #   default is 'false'.  Note that this option applies to protocol
 #   version 2 only.
 #
+# [*revokedkeys*]
+#   Specifies a list of revoked public keys.  Keys listed in this
+#   file will be refused for public key authentication.  Note that if
+#   this file is not readable, then public key authentication will be
+#   refused for all users.
+#
+# [*rhostsrsaauthentication*]
+#   Specifies whether rhosts or /etc/hosts.equiv authentication
+#   together with successful RSA host authentication is allowed.  The
+#   default is 'no'.  This option applies to protocol version 1 only.
+#
+# [*rsaauthentication*]
+#   Specifies whether pure RSA authentication is allowed.  The
+#   default is 'yes'.  This option applies to protocol version 1
+#   only.
+#
 # [*rsakey*]
 #   Specifies a file containing the private host RSA key used by SSH.
 #   NOTE: This parameter has been temporarily disabled
 #   Default: /etc/ssh/ssh_host_rsa_key
+#
+# [*serverkeybits*]
+#   Defines the number of bits in the ephemeral protocol version 1
+#   server key.  The minimum value is 512, and the default is 1024.
+#
+# [*strictmodes*]
+#   Specifies whether sshd(8) should check file modes and ownership
+#   of the user's files and home directory before accepting login.
+#   This is normally desirable because novices sometimes accidentally
+#   leave their directory or files world-writable.  The default is 'yes'.
+#
+#   Note that this does not apply to ChrootDirectory, whose
+#   permissions and ownership are checked unconditionally.
+#
+# [*subsystem*]
+#   Configures an external subsystem (e.g. file transfer daemon).  Arguments
+#   should be a subsystem name and a command (with optional arguments) to
+#   execute upon subsystem request.
+#
+#   The command sftp-server(8) implements the 'sftp' file transfer subsystem.
+#
+#   Alternately the name 'internal-sftp' implements an in-process 'sftp'
+#   server.  This may simplify configurations using ChrootDirectory to
+#   force a different filesystem root on clients.
+#
+#   By default no subsystems are defined.
+#   Note that this option applies to protocol version 2 only.
 #
 # [*syslogfacility*]
 #   Gives the facility code that is used when logging messages from
@@ -344,15 +561,69 @@
 #   'true' the title will be used otherwise the port number will be used.
 #   The default is 'false'.
 #
+# [*trustedusercakeys*]
+#   Specifies a file containing public keys of certificate authorities that
+#   are trusted to sign user certificates for authentication.  Keys are
+#   listed one per line; empty lines and comments starting with ‘#’ are
+#   allowed.  If a certificate is presented for authentication and has
+#   its signing CA key listed in this file, then it may be used for
+#   authentication for any user listed in the certificate's principals
+#   list.  Note that certificates that lack a list of principals will
+#   not be permitted for authentication using TrustedUserCAKeys.  For
+#   more details on certificates, see the CERTIFICATES section in
+#   ssh-keygen(1).
+#
+# [*usedns*]
+#   Specifies whether sshd(8) should look up the remote host name and
+#   check that the resolved host name for the remote IP address maps
+#   back to the very same IP address.  The default is 'yes'.
+#
+# [*uselogin*]
+#   Specifies whether login(1) is used for interactive login sessions.
+#   The default is 'no'.  Note that login(1) is never used for remote
+#   command execution.  Note also, that if this is enabled, X11Forwarding
+#   will be disabled because login(1) does not know how to handle xauth(1)
+#   cookies.  If UsePrivilegeSeparation is specified, it will be disabled
+#   after authentication.
+#
 # [*usepam*]
 #   Enables the Pluggable Authentication Module interface.  If set to 'true'
 #   this will enable PAM authentication using ChallengeResponseAuthentication
 #   and PasswordAuthentication in addition to PAM account and session module
 #   processing for all authentication types.  The default is 'true'.
 #
+# [*useprivilegeseparation*]
+#   Specifies whether sshd(8) separates privileges by creating an
+#   unprivileged child process to deal with incoming network traffic.
+#   After successful authentication, another process will be created
+#   that has the privilege of the authenticated user.  The goal of
+#   privilege separation is to prevent privilege escalation by
+#   containing any corruption within the unprivileged processes.
+#   The default is 'yes'.
+#
+# [*x11displayoffset*]
+#   Specifies the first display number available for sshd(8)'s X11
+#   forwarding.  This prevents sshd from interfering with real X11
+#   servers.  The default is 10.
+#
 # [*x11forwarding*]
 #   Specifies whether X11 forwarding is permitted.  The argument must
 #   be 'true' or 'false'.  The default is 'false'.
+#
+# [*x11uselocalhost*]
+#   Specifies whether sshd(8) should bind the X11 forwarding server to the
+#   loopback address or to the wildcard address.  By default, sshd binds
+#   the forwarding server to the loopback address and sets the hostname
+#   part of the DISPLAY environment variable to 'localhost'.  This prevents
+#   remote hosts from connecting to the proxy display.  However, some older
+#   X11 clients may not function with this configuration.  X11UseLocalhost
+#   may be set to 'no' to specify that the forwarding server should be
+#   bound to the wildcard address.  The argument must be 'yes' or 'no'.
+#   The default is 'yes'.
+#
+# [*xauthlocation*]
+#   Specifies the full pathname of the xauth(1) program.
+#   The default is /usr/bin/xauth.
 #
 # === Variables
 #
@@ -468,23 +739,29 @@
 # === Diagnostics
 #
 # [*non-fatal errors*]
-#   Aside from any parse errors resulting from changes in OS releases, an
-#   error messages that will be displayed in red when the operating system
-#   isn't known to ssh::server.
+#   An error message will be displayed in red when the operating system
+#   is not known to ssh::server.
 #
 # [*fatal errors*]
-#   ssh::server will issue a fatal error when one of the boolen parameters
-#   or 'enable' contains an invalid value.
+#   ssh::server will issue a fatal error when one of the parameters contains
+#   invalid value.
 #
 # === Alternate ports
 #
-#   Daemons listening on alternate ports are suffixed with the port number for
-#   clarity.
+#   Daemons listening on alternate ports are suffixed with either the port
+#   number or the title for clarity.  Set titlesuffix => true if you want
+#   to use the dameon's title rather than the port number.
 #
 #   example:
+#       # port suffix
 #       /etc/ssh/sshd_config_2222
 #       /usr/sbin/sshd_2222
 #       /etc/init.d/ssh_2222
+#
+#       # title suffix
+#       /etc/ssh/sshd_config_special
+#       /usr/sbin/sshd_special
+#       /etc/init.d/ssh_special
 #
 # === SSH Host Keys
 #
@@ -495,8 +772,8 @@
 #       * ensure permission and ownership of RSA and DSA keys
 #
 #   All instances of sshd will use the same set of host keys.  You will need
-#   to specify the host key parameters If you want to use a different set of
-#   keys for a daemon listening on an alternate port.
+#   to specify the host key parameters (rsakey and dsakey) If you want to use
+#   a different set of keys for a daemon listening on an alternate port.
 #
 # === SELinux
 #
@@ -543,6 +820,7 @@ define ssh::server (
     $clientaliveinterval                = '300',
     $compression                        = 'delayed',
     $debianbanner                       = true,
+    $debug                              = false,
     $denygroups                         = false,
     $denyusers                          = [
         'adm',       'admin',       'administrator', 'Administrator',
@@ -1001,9 +1279,11 @@ define ssh::server (
                     require => Package['ssh-server-package'],
                 }
             } else {
-                notify { "generate-${rsakey}${suffix}":
-                    loglevel => 'warning',
-                    message  => "DEBUG: Exec[generate-${rsakey}] already defined, skipping",
+                if $debug {
+                    notify { "generate-${rsakey}${suffix}":
+                        loglevel => 'warning',
+                        message  => "DEBUG: Exec[generate-${rsakey}] already defined, skipping",
+                    }
                 }
             }
 
@@ -1017,9 +1297,11 @@ define ssh::server (
                     require => Package['ssh-server-package'],
                 }
             } else {
-                notify { "generate-${dsakey}${suffix}":
-                    loglevel => 'warning',
-                    message  => "DEBUG: Exec[generate-${dsakey}] already defined, skipping",
+                if $debug {
+                    notify { "generate-${dsakey}${suffix}":
+                        loglevel => 'warning',
+                        message  => "DEBUG: Exec[generate-${dsakey}] already defined, skipping",
+                    }
                 }
             }
 
@@ -1050,12 +1332,18 @@ define ssh::server (
                         mode  => '0400',
                         owner => $ssh::user,
                         group => $ssh::group,
+                        require => [
+                            Package['ssh-server-package'],
+                            Exec["generate-${rsakey}"],
+                        ],
                     }
                 }
             } else {
-                notify { "file-${rsakey}${suffix}":
-                    loglevel => 'warning',
-                    message  => "DEBUG: File[${rsakey}] already defined, skipping",
+                if $debug {
+                    notify { "file-${rsakey}${suffix}":
+                        loglevel => 'warning',
+                        message  => "DEBUG: File[${rsakey}] already defined, skipping",
+                    }
                 }
             }
 
@@ -1086,12 +1374,18 @@ define ssh::server (
                         mode  => '0444',
                         owner => $ssh::user,
                         group => $ssh::group,
+                        require => [
+                            Package['ssh-server-package'],
+                            Exec["generate-${rsakey}"],
+                        ],
                     }
                 }
             } else {
-                notify { "file-${rsakey}${suffix}.pub":
-                    loglevel => 'warning',
-                    message  => "DEBUG: File[${rsakey}.pub] already defined, skipping",
+                if $debug {
+                    notify { "file-${rsakey}${suffix}.pub":
+                        loglevel => 'warning',
+                        message  => "DEBUG: File[${rsakey}.pub] already defined, skipping",
+                    }
                 }
             }
 
@@ -1122,12 +1416,18 @@ define ssh::server (
                         mode  => '0400',
                         owner => $ssh::user,
                         group => $ssh::group,
+                        require => [
+                            Package['ssh-server-package'],
+                            Exec["generate-${dsakey}"],
+                        ],
                     }
                 }
             } else {
-                notify { "file-${dsakey}${suffix}":
-                    loglevel => 'warning',
-                    message  => "DEBUG: File[${dsakey}] already defined, skipping",
+                if $debug {
+                    notify { "file-${dsakey}${suffix}":
+                        loglevel => 'warning',
+                        message  => "DEBUG: File[${dsakey}] already defined, skipping",
+                    }
                 }
             }
 
@@ -1158,12 +1458,18 @@ define ssh::server (
                         mode  => '0444',
                         owner => $ssh::user,
                         group => $ssh::group,
+                        require => [
+                            Package['ssh-server-package'],
+                            Exec["generate-${dsakey}"],
+                        ],
                     }
                 }
             } else {
-                notify { "file-${dsakey}${suffix}.pub":
-                    loglevel => 'warning',
-                    message  => "DEBUG: File[${dsakey}.pub] already defined, skipping",
+                if $debug {
+                    notify { "file-${dsakey}${suffix}.pub":
+                        loglevel => 'warning',
+                        message  => "DEBUG: File[${dsakey}.pub] already defined, skipping",
+                    }
                 }
             }
 
