@@ -1,0 +1,14 @@
+2013-11-21 - Bennett Samowich <bennett@foolean.org> - 1.0.16
+- Fixed bug where ssh_known_hosts was not properly handled.
+- README and supported OS documentation enhancements
+
+2013-11-09 - Bennett Samowich <bennett@foolean.org> - 1.0.15
+- Fixed bug in ssh_config where an empty host parameter was not handled
+
+2013-11-07 - Bennett Samowich <bennett@foolean.org> - 1.0.14
+- Full option handling in sshd_config with parameter validation
+
+
+# Everything before this was before CHANGELOG and better git management
+# was enforced.  The git log has the gory details but for all intents
+# and purposes we will consider this to be the EPOC.
