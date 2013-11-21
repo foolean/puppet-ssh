@@ -50,6 +50,25 @@ be able to audit the default baseline configuration then simply observe the
 deviations, if any, within the node definition.
 
 
+
+Supported Operating Systems
+---------------------------
+
+Primary development is done on Debian and then validated against other
+operating systems.  The current list of supported operating systems is:
+
+    * Centos
+    * Debian
+    * Fedora
+    * FreeBSD
+    * OpenSUSE
+    * OpenBSD
+    * RedHat
+    * SLES
+    * Ubuntu
+
+
+
 Packaging
 ---------
 
@@ -150,6 +169,17 @@ due to Puppet's natural ordering mechanisms.  All attempts to force order
 did not work.  As a result the decision was made to make the ssh_known_hosts
 file a template only and leave the use of sshkey up to the administrator to
 create the necessary local classes.
+
+    The paths it will look in are:
+    ${settings::vardir}/sites/${site_name}/${::fqdn}/etc/ssh/${ssh_known_hosts}
+    ${settings::vardir}/private/${::fqdn}/etc/ssh/${ssh_known_hosts}
+    ${settings::vardir}/hosts/${::fqdn}/etc/ssh/${ssh_known_hosts}
+    ${settings::vardir}/nodefile/${::fqdn}/etc/ssh/${ssh_known_hosts}
+    ${settings::vardir}/dist/${::fqdn}/etc/ssh/${ssh_known_hosts}
+
+If a ssh_known_hosts file is not found then the client class will ensure that
+the ssh_known_hosts file exists and has the proper ownership and permissions.
+
 
 
 To Do

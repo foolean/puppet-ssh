@@ -43,6 +43,22 @@
 #       }
 #   }
 #
+# === Supported Operating Systems
+#
+#   Primary development is done on Debian and then validated
+#   against other operating systems.  The current list of
+#   supported operating systems is:
+#
+#   * Centos
+#   * Debian
+#   * Fedora
+#   * FreeBSD
+#   * OpenSUSE
+#   * OpenBSD
+#   * RedHat
+#   * SLES
+#   * Ubuntu
+#
 # === Authors
 #
 #   Bennett Samowich <bennett@foolean.org>
@@ -138,18 +154,29 @@ class ssh::client (
             require => Package['ssh-client-package'],
         }
 
-        # Copy the ssh_known_hosts file
-        file { $ssh_known_hosts:
-            mode    => '0444',
-            owner   => $ssh::user,
-            group   => $ssh::group,
-            content => inline_template(
-                file(
-                    "${settings::vardir}/${ssh::private_mount}/${::fqdn}/${ssh_known_hosts}",
-                    "${settings::vardir}/${ssh::private_path}/${::fqdn}/${ssh_known_hosts}",
-                    '/dev/null'
-                )
-            )
+        # Copy the ssh_known_hosts file if exists in the private area
+        $known_hosts = file(
+            "${ssh::site_private_path}/${ssh_known_hosts}",
+            "${settings::vardir}/private/${::fqdn}/${ssh_known_hosts}",
+            "${settings::vardir}/hosts/${::fqdn}/${ssh_known_hosts}",
+            "${settings::vardir}/nodefile/${::fqdn}/${ssh_known_hosts}",
+            "${settings::vardir}/dist/${::fqdn}/${ssh_known_hosts}",
+            '/dev/null'
+        )
+        if ( $known_hosts ) {
+            file { $ssh_known_hosts:
+                mode    => '0444',
+                owner   => $ssh::user,
+                group   => $ssh::group,
+                content => inline_template( $known_hosts ),
+            }
+        } else {
+            file { $ssh_known_hosts:
+                ensure  => 'present',
+                mode    => '0444',
+                owner   => $ssh::user,
+                group   => $ssh::group,
+            }
         }
     }
 }

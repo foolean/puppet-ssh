@@ -726,6 +726,10 @@
 #
 # === Supported Operating Systems
 #
+#   Primary development is done on Debian and then validated
+#   against other operating systems.  The current list of
+#   supported operating systems is:
+#
 #   * Centos
 #   * Debian
 #   * Fedora
