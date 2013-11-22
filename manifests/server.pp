@@ -13,7 +13,7 @@
 #   into the session's environ(7).  See SendEnv in ssh_config(5) for how
 #   to configure the client.  Note that environment passing is only supported
 #   for protocol 2.  Variables are specified by name, which may contain the
-#   wildcard characters ‘*’ and ‘?’.  Multiple environment variables may be
+#   wildcard characters * and ? Multiple environment variables may be
 #   separated by whitespace or spread across multiple AcceptEnv directives.
 #   Be warned that some environment variables could be used to bypass
 #   restricted user environments.  For this reason, care should be taken
@@ -564,7 +564,7 @@
 # [*trustedusercakeys*]
 #   Specifies a file containing public keys of certificate authorities that
 #   are trusted to sign user certificates for authentication.  Keys are
-#   listed one per line; empty lines and comments starting with ‘#’ are
+#   listed one per line; empty lines and comments starting with # are
 #   allowed.  If a certificate is presented for authentication and has
 #   its signing CA key listed in this file, then it may be used for
 #   authentication for any user listed in the certificate's principals
