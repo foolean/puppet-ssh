@@ -74,6 +74,14 @@ def do_text(option, value, indent=false)
     return do_indent(indent) + option + " " + value + "\n"
 end
 
+# versioncmp - Version string comparison
+def versioncmp(version1, version2)
+   a1 = version1.split('.').map{|s|s.to_i}
+   a2 = version2.split('.').map{|s|s.to_i}
+
+   return ( a1 <=> a2 )
+end
+
 # is_valid_ip - return true|false if address is a valid IPv4 or IPv6 address
 def is_valid_ip(address)
     case address

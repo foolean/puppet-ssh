@@ -12,7 +12,7 @@
 #   into the session's environ(7).  See SendEnv in ssh_config(5) for how to
 #   configure the client.  Note that environment passing is only supported
 #   for protocol 2.  Variables are specified by name, which may contain the
-#   wildcard characters ‘*’ and ‘?’.  Multiple environment variables may be
+#   wildcard characters * and ?.   Multiple environment variables may be
 #   separated by whitespace or spread across multiple AcceptEnv directives.
 #   Be warned that some environment variables could be used to bypass
 #   restricted user environments.  For this reason, care should be takens
@@ -181,7 +181,7 @@ ChrootDirectory <%= chrootdirectory %>
 #   'no'.  The default is 'delayed'.
 #   [ Puppet default is: <%= scope.lookupvar('ssh::default_compression') -%> ]
 <%= do_compression( name, compression ) -%>
-<% if operatingsystem.downcase == 'debian' -%>
+<% if @operatingsystem.downcase == 'debian' -%>
 
 # DebianBanner
 #   Specifies whether the distribution-specified extra version suffix is
@@ -463,6 +463,7 @@ MaxStartups <%= maxstartups %>
 #   default is 'yes'.
 #   [ Puppet default is: true 'yes' ]
 <%= do_boolean( name, 'PasswordAuthentication', passwordauthentication ) -%>
+<% if @operatingsystem.downcase == 'debian' || @operatingsystem.downcase == 'ubuntu' -%>
 
 # PermitBlacklistedKeys
 #   Specifies whether sshd(8) should allow keys recorded in its
@@ -472,6 +473,7 @@ MaxStartups <%= maxstartups %>
 #   with compromised keys will be rejected.  The default is 'no'.
 #   [ Puppet default is: false 'no' ]
 <%= do_boolean( name, 'PermitBlacklistedKeys', permitblacklistedkeys ) -%>
+<% end -%>
 
 # PermitEmptyPasswords
 #   When password authentication is allowed, it specifies whether the
