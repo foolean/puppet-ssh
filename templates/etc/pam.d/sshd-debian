@@ -7,10 +7,10 @@ auth       required     pam_env.so # [1]
 # /etc/default/locale, so read that as well.
 auth       required     pam_env.so envfile=/etc/default/locale
 
-# Use pam_listfile to deny users specified in <%= deny_users %>
-auth requisite pam_listfile.so item=user sense=deny file=<%= deny_users %> onerr=succeed
+# Use pam_listfile to deny users specified in <%= @deny_users %>
+auth requisite pam_listfile.so item=user sense=deny file=<%= @deny_users %> onerr=succeed
 
-<% if pamradiusauth -%>
+<% if @pamradiusauth -%>
 # Require SecurID authentication
 auth requisite pam_radius_auth.so
 

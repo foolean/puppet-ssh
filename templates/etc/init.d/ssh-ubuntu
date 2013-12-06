@@ -1,7 +1,7 @@
 #! /bin/sh
 
 ### BEGIN INIT INFO
-# Provides:		<%= sshd_name %><%= suffix %>
+# Provides:		<%= @sshd_name %><%= @suffix %>
 # Required-Start:	$remote_fs $syslog
 # Required-Stop:	$remote_fs $syslog
 # Default-Start:	2 3 4 5
@@ -11,10 +11,10 @@
 
 set -e
 
-# <%= ssh_init %><%= suffix %>: start and stop the OpenBSD "secure shell(tm)" daemon
+# <%= @ssh_init %><%= @suffix %>: start and stop the OpenBSD "secure shell(tm)" daemon
 
-test -x <%= sshd_binary %><%= suffix %> || exit 0
-( <%= sshd_binary %><%= suffix %> -\? 2>&1 | grep -q OpenSSH ) 2>/dev/null || exit 0
+test -x <%= @sshd_binary %><%= @suffix %> || exit 0
+( <%= @sshd_binary %><%= @suffix %> -\? 2>&1 | grep -q OpenSSH ) 2>/dev/null || exit 0
 
 chrooted() {
     # borrowed from udev's postinst
@@ -29,15 +29,15 @@ chrooted() {
 }
 
 # The init.d script is only for chroots
-if [ -e <%= ssh_conf %><%= suffix %> ] && ! chrooted; then
-    exec /lib/init/upstart-job <%= sshd_service %><%= suffix %> "$@"
+if [ -e <%= @ssh_conf %><%= @suffix %> ] && ! chrooted; then
+    exec /lib/init/upstart-job <%= @sshd_service %><%= @suffix %> "$@"
 fi
 
 umask 022
 
 export SSHD_OOM_ADJUST=-17
-if test -f <%= ssh_default %><%= suffix %>; then
-    . <%= ssh_default %><%= suffix %>
+if test -f <%= @ssh_default %><%= @suffix %>; then
+    . <%= @ssh_default %><%= @suffix %>
 fi
 
 . /lib/lsb/init-functions
@@ -52,13 +52,13 @@ run_by_init() {
 }
 
 check_for_no_start() {
-    # forget it if we're trying to start, and <%= ssh_norun %><%= suffix %> exists
-    if [ -e <%= ssh_norun %><%= suffix %> ]; then 
+    # forget it if we're trying to start, and <%= @ssh_norun %><%= @suffix %> exists
+    if [ -e <%= @ssh_norun %><%= @suffix %> ]; then 
 	if [ "$1" = log_end_msg ]; then
 	    log_end_msg 0 || true
 	fi
 	if ! run_by_init; then
-	    log_action_msg "OpenBSD Secure Shell server not in use (<%= ssh_norun %><%= suffix %>)" || true
+	    log_action_msg "OpenBSD Secure Shell server not in use (<%= @ssh_norun %><%= @suffix %>)" || true
 	fi
 	exit 0
     fi
@@ -85,8 +85,8 @@ check_privsep_dir() {
 }
 
 check_config() {
-    if [ ! -e <%= ssh_norun %><%= suffix %> ]; then
-	<%= sshd_binary %><%= suffix %> $SSHD_OPTS -t || exit 1
+    if [ ! -e <%= @ssh_norun %><%= @suffix %> ]; then
+	<%= @sshd_binary %><%= @suffix %> $SSHD_OPTS -t || exit 1
     fi
 }
 
@@ -97,16 +97,16 @@ case "$1" in
 	check_privsep_dir
 	check_for_no_start
 	check_dev_null
-	log_daemon_msg "Starting OpenBSD Secure Shell server" "<%= sshd_name %><%= suffix %>" || true
-	if start-stop-daemon --start --quiet --oknodo --pidfile /var/run/<%= sshd_name %><%= suffix %>.pid --exec <%= sshd_binary %><%= suffix %> -- $SSHD_OPTS; then
+	log_daemon_msg "Starting OpenBSD Secure Shell server" "<%= @sshd_name %><%= @suffix %>" || true
+	if start-stop-daemon --start --quiet --oknodo --pidfile /var/run/<%= @sshd_name %><%= @suffix %>.pid --exec <%= @sshd_binary %><%= @suffix %> -- $SSHD_OPTS; then
 	    log_end_msg 0 || true
 	else
 	    log_end_msg 1 || true
 	fi
 	;;
   stop)
-	log_daemon_msg "Stopping OpenBSD Secure Shell server" "<%= sshd_name %><%= suffix %>" || true
-	if start-stop-daemon --stop --quiet --oknodo --pidfile /var/run/<%= sshd_name %><%= suffix %>.pid; then
+	log_daemon_msg "Stopping OpenBSD Secure Shell server" "<%= @sshd_name %><%= @suffix %>" || true
+	if start-stop-daemon --stop --quiet --oknodo --pidfile /var/run/<%= @sshd_name %><%= @suffix %>.pid; then
 	    log_end_msg 0 || true
 	else
 	    log_end_msg 1 || true
@@ -116,8 +116,8 @@ case "$1" in
   reload|force-reload)
 	check_for_no_start
 	check_config
-	log_daemon_msg "Reloading OpenBSD Secure Shell server's configuration" "<%= sshd_name %><%= suffix %>" || true
-	if start-stop-daemon --stop --signal 1 --quiet --oknodo --pidfile /var/run/<%= sshd_name %><%= suffix %>.pid --exec <%= sshd_binary %><%= suffix %>; then
+	log_daemon_msg "Reloading OpenBSD Secure Shell server's configuration" "<%= @sshd_name %><%= @suffix %>" || true
+	if start-stop-daemon --stop --signal 1 --quiet --oknodo --pidfile /var/run/<%= @sshd_name %><%= @suffix %>.pid --exec <%= @sshd_binary %><%= @suffix %>; then
 	    log_end_msg 0 || true
 	else
 	    log_end_msg 1 || true
@@ -127,11 +127,11 @@ case "$1" in
   restart)
 	check_privsep_dir
 	check_config
-	log_daemon_msg "Restarting OpenBSD Secure Shell server" "<%= sshd_name %><%= suffix %>" || true
-	start-stop-daemon --stop --quiet --oknodo --retry 30 --pidfile /var/run/<%= sshd_name %><%= suffix %>.pid
+	log_daemon_msg "Restarting OpenBSD Secure Shell server" "<%= @sshd_name %><%= @suffix %>" || true
+	start-stop-daemon --stop --quiet --oknodo --retry 30 --pidfile /var/run/<%= @sshd_name %><%= @suffix %>.pid
 	check_for_no_start log_end_msg
 	check_dev_null log_end_msg
-	if start-stop-daemon --start --quiet --oknodo --pidfile /var/run/<%= sshd_name %><%= suffix %>.pid --exec <%= sshd_binary %><%= suffix %> -- $SSHD_OPTS; then
+	if start-stop-daemon --start --quiet --oknodo --pidfile /var/run/<%= @sshd_name %><%= @suffix %>.pid --exec <%= @sshd_binary %><%= @suffix %> -- $SSHD_OPTS; then
 	    log_end_msg 0 || true
 	else
 	    log_end_msg 1 || true
@@ -141,15 +141,15 @@ case "$1" in
   try-restart)
 	check_privsep_dir
 	check_config
-	log_daemon_msg "Restarting OpenBSD Secure Shell server" "<%= sshd_name %><%= suffix %>" || true
+	log_daemon_msg "Restarting OpenBSD Secure Shell server" "<%= @sshd_name %><%= @suffix %>" || true
 	RET=0
-	start-stop-daemon --stop --quiet --retry 30 --pidfile /var/run/<%= sshd_name %><%= suffix %>.pid || RET="$?"
+	start-stop-daemon --stop --quiet --retry 30 --pidfile /var/run/<%= @sshd_name %><%= @suffix %>.pid || RET="$?"
 	case $RET in
 	    0)
 		# old daemon stopped
 		check_for_no_start log_end_msg
 		check_dev_null log_end_msg
-		if start-stop-daemon --start --quiet --oknodo --pidfile /var/run/<%= sshd_name %><%= suffix %>.pid --exec <%= sshd_binary %><%= suffix %> -- $SSHD_OPTS; then
+		if start-stop-daemon --start --quiet --oknodo --pidfile /var/run/<%= @sshd_name %><%= @suffix %>.pid --exec <%= @sshd_binary %><%= @suffix %> -- $SSHD_OPTS; then
 		    log_end_msg 0 || true
 		else
 		    log_end_msg 1 || true
@@ -169,11 +169,11 @@ case "$1" in
 	;;
 
   status)
-	status_of_proc -p /var/run/<%= sshd_name %><%= suffix %>.pid <%= sshd_binary %><%= suffix %> <%= sshd_name %><%= suffix %> && exit 0 || exit $?
+	status_of_proc -p /var/run/<%= @sshd_name %><%= @suffix %>.pid <%= @sshd_binary %><%= @suffix %> <%= @sshd_name %><%= @suffix %> && exit 0 || exit $?
 	;;
 
   *)
-	log_action_msg "Usage: <%= ssh_init %><%= suffix %> {start|stop|reload|force-reload|restart|try-restart|status}" || true
+	log_action_msg "Usage: <%= @ssh_init %><%= @suffix %> {start|stop|reload|force-reload|restart|try-restart|status}" || true
 	exit 1
 esac
 

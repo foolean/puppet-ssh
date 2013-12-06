@@ -55,8 +55,8 @@
 # Custom Host blocks
 #
 <%
-if host
-    host.sort.map do |string,data|
+if @host
+    @host.sort.map do |string,data|
         if ( string == "*" ) then
             next
         end
@@ -71,10 +71,10 @@ Host <%= string %>
 #
 Host *
 <%
-if host && host["*"]
+if @host && @host["*"]
     # We'll set the default cipher list if one wasn't provided
-    if ! host["*"].has_key?("ciphers") 
-        host["*"]["ciphers"] = [ 'aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
+    if ! @host["*"].has_key?("ciphers") 
+        @host["*"]["ciphers"] = [ 'aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
     end
 -%>
 <%= process_ssh_config_host_hash("*", host["*"]) %>

@@ -1,8 +1,8 @@
 #!/bin/sh
 #
-# OpenBSD rc.d script for <%= sshd_name %><%= suffix %>
+# OpenBSD rc.d script for <%= @sshd_name %><%= @suffix %>
 
-daemon="<%= sshd_binary %><%= suffix %>"
+daemon="<%= @sshd_binary %><%= @suffix %>"
 
 . /etc/rc.d/rc.subr
 

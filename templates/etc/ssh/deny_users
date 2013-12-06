@@ -1,6 +1,6 @@
-<% if ! permitrootlogin -%>
+<% if ! @permitrootlogin -%>
 root
 <% end -%>
-<% denyusers.sort.each do |user| -%>
+<% @denyusers.sort.each do |user| -%>
 <%= user %>
 <% end -%>

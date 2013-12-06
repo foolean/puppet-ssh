@@ -6,12 +6,12 @@
 # description: SSH is a protocol for secure remote shell access. \
 #              This service starts up the OpenSSH server daemon.
 #
-# processname: <%= sshd_name %><%= suffix %>
+# processname: <%= @sshd_name %><%= @suffix %>
 # config: /etc/ssh/ssh_host_key
 # config: /etc/ssh/ssh_host_key.pub
 # config: /etc/ssh/ssh_random_seed
-# config: <%= sshd_config %>
-# pidfile: /var/run/<%= sshd_name %><%= suffix %>.pid
+# config: <%= @sshd_config %>
+# pidfile: /var/run/<%= @sshd_name %><%= @suffix %>.pid
 
 ### BEGIN INIT INFO
 # Provides: sshd
@@ -30,7 +30,7 @@
 . /etc/rc.d/init.d/functions
 
 # pull in sysconfig settings
-[ -f <%= ssh_default %><%= suffix %> ] && . <%= ssh_default %><%= suffix %>
+[ -f <%= @ssh_default %><%= @suffix %> ] && . <%= @ssh_default %><%= @suffix %>
 
 RETVAL=0
 prog="sshd"
@@ -38,11 +38,11 @@ lockfile=/var/lock/subsys/$prog
 
 # Some functions to make the below more readable
 KEYGEN=/usr/bin/ssh-keygen
-SSHD=<%= sshd_binary %><%= suffix %>
+SSHD=<%= @sshd_binary %><%= @suffix %>
 RSA1_KEY=/etc/ssh/ssh_host_key
-RSA_KEY=<%= rsakey %>
-DSA_KEY=<%= dsakey %>
-PID_FILE=/var/run/<%= sshd_name %><%= suffix %>.pid
+RSA_KEY=<%= @rsakey %>
+DSA_KEY=<%= @dsakey %>
+PID_FILE=/var/run/<%= @sshd_name %><%= @suffix %>.pid
 
 runlevel=$(set -- $(runlevel); eval "echo \$$#" )
 
@@ -127,7 +127,7 @@ do_restart_sanity_check()
 start()
 {
 	[ -x $SSHD ] || exit 5
-	[ -f <%= sshd_config %><%= suffix %> ] || exit 6
+	[ -f <%= @sshd_config %><%= @suffix %> ] || exit 6
 	# Create keys if necessary
 	if [ "x${AUTOCREATE_SERVER_KEYS}" != xNO ]; then
 		do_rsa1_keygen

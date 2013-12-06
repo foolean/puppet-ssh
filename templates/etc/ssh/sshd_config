@@ -5,7 +5,7 @@
 # Puppet generated configuration file for ssh running on tcp/<%= port %>
 # See the sshd_config(5) manpage for details.
 
-<% if acceptenv -%>
+<% if @acceptenv -%>
 
 # AcceptEnv
 #   Specifies what environment variables sent by the client will be copied
@@ -19,7 +19,7 @@
 #   in the use of this directive.  The default is not to accept any environment
 #   variables.
 #   [ Puppet default is: 'LANG LC_*' ]
-<%= do_acceptenv( name, acceptenv ) -%>
+<%= do_acceptenv( name, @acceptenv ) -%>
 <% end -%>
 
 # AddressFamily
@@ -27,7 +27,7 @@
 #   Valid arguments are 'any', 'inet' (use IPv4 only), or
 #   'inet6' (use IPv6 only).  The default is 'any'.
 #   [ Puppet default is: 'any' ]
-<%= do_addressfamily( name, addressfamily ) -%>
+<%= do_addressfamily( name, @addressfamily ) -%>
 
 # AllowAgentForwarding
 #   Specifies whether ssh-agent(1) forwarding is permitted.
@@ -35,8 +35,8 @@
 #   improve security unless users are also denied shell access, as they
 #   can always install their own forwarders.
 #   [ Puppet default is: true 'yes' ]
-<%= do_boolean( name, 'AllowAgentForwarding', allowagentforwarding ) -%>
-<% if allowgroups -%>
+<%= do_boolean( name, 'AllowAgentForwarding', @allowagentforwarding ) -%>
+<% if @allowgroups -%>
 
 # AllowGroups
 #   This keyword can be followed by a list of group name patterns, separated by
@@ -48,7 +48,7 @@
 #            
 #   See PATTERNS in ssh_config(5) for more information on patterns.
 #   [ Puppet default is: false (not defined) ]
-AllowGroups <%= array_to_string( name, allowgroups, ' ' ) %>
+AllowGroups <%= array_to_string( name, @allowgroups, ' ' ) %>
 <% end -%>
 
 # AllowTcpForwarding
@@ -57,8 +57,8 @@ AllowGroups <%= array_to_string( name, allowgroups, ' ' ) %>
 #   users are also denied shell access, as they can always install their own
 #   forwarders.
 #   [ Puppet default is: false 'no' ]
-<%= do_boolean( name, 'AllowTcpForwarding', allowtcpforwarding ) -%>
-<% if allowusers -%>
+<%= do_boolean( name, 'AllowTcpForwarding', @allowtcpforwarding ) -%>
+<% if @allowusers -%>
 
 # AllowUsers
 #   This keyword can be followed by a list of user name patterns, separated
@@ -73,10 +73,10 @@ AllowGroups <%= array_to_string( name, allowgroups, ' ' ) %>
 #
 #   See PATTERNS in ssh_config(5) for more information on patterns.
 #   [ Puppet default is: false (not defined) ]
-AllowUsers <%= array_to_string( name, allowusers, ' ' ) %>
+AllowUsers <%= array_to_string( name, @allowusers, ' ' ) %>
 <% end -%>
 
-<% if authorizedkeysfile -%>
+<% if @authorizedkeysfile -%>
 # AuthorizedKeysFile
 #   Specifies the file that contains the public keys that can be used for
 #   user authentication.  AuthorizedKeysFile may contain tokens of the
@@ -87,7 +87,7 @@ AllowUsers <%= array_to_string( name, allowusers, ' ' ) %>
 #   taken to be an absolute path or one relative to the user's home directory.
 #   The default is '.ssh/authorized_keys'.
 #   [ Puppet default is: '%h/.ssh/authorized_keys' ]
-AuthorizedKeysFile <%= authorizedkeysfile %>
+AuthorizedKeysFile <%= @authorizedkeysfile %>
 <% end -%>
 
 # Banner
@@ -96,15 +96,15 @@ AuthorizedKeysFile <%= authorizedkeysfile %>
 #   is displayed.  This option is only available for protocol version 2.
 #   By default, no banner is displayed.
 #   [ Puppet default is: '/etc/issue.net' ]
-Banner <%= banner %>
+Banner <%= @banner %>
 
 # ChallengeResponseAuthentication
 #   Specifies whether challenge-response authentication is allowed
 #   (e.g. via PAM).  The default is 'yes'.
 #   (beware issues with some PAM modules and threads )
 #   [ Puppet default is: false 'no' ]
-<%= do_boolean( name, 'ChallengeResponseAuthentication', challengresponseauthentication ) -%>
-<% if chrootdirectory -%>
+<%= do_boolean( name, 'ChallengeResponseAuthentication', @challengresponseauthentication ) -%>
+<% if @chrootdirectory -%>
 
 # ChrootDirectory
 #   Specifies the pathname of a directory to chroot(2) to after authentication.
@@ -145,7 +145,7 @@ ChrootDirectory <%= chrootdirectory %>
 #       aes256-cbc,arcfour
 #
 #   [ Puppet default is: 'aes128-ctr', 'aes192-ctr', 'aes256-ctr' ]
-<%= do_ciphers( name, ciphers ) -%>
+<%= do_ciphers( name, @ciphers ) -%>
 
 # ClientAliveCountMax
 #   Sets the number of client alive messages (see below) which may be sent
@@ -164,7 +164,7 @@ ChrootDirectory <%= chrootdirectory %>
 #   will be disconnected after approximately 45 seconds.  This option applies
 #   to protocol version 2 only.
 #   [ Puppet default is: 0 ]
-<%= do_integer( name, 'ClientAliveCountMax', clientalivecountmax ) -%>
+<%= do_integer( name, 'ClientAliveCountMax', @clientalivecountmax ) -%>
 
 # ClientAliveInterval
 #   Sets a timeout interval in seconds after which if no data has been received
@@ -173,23 +173,23 @@ ChrootDirectory <%= chrootdirectory %>
 #   these messages will not be sent to the client.  This option applies to
 #   protocol version 2 only.
 #   [ Puppet default is: 300 ]
-<%= do_integer( name, 'ClientAliveInterval', clientaliveinterval ) -%>
+<%= do_integer( name, 'ClientAliveInterval', @clientaliveinterval ) -%>
 
 # Compression
 #   Specifies whether compression is allowed, or delayed until the user has
 #   authenticated successfully.  The argument must be 'yes', 'delayed', or
 #   'no'.  The default is 'delayed'.
 #   [ Puppet default is: <%= scope.lookupvar('ssh::default_compression') -%> ]
-<%= do_compression( name, compression ) -%>
+<%= do_compression( name, @compression ) -%>
 <% if @operatingsystem.downcase == 'debian' -%>
 
 # DebianBanner
 #   Specifies whether the distribution-specified extra version suffix is
 #   included during initial protocol handshake.  The default is 'yes'.
 #   [ Puppet default is: true 'yes' ]
-<%= do_boolean( name, 'DebianBanner', debianbanner ) -%>
+<%= do_boolean( name, 'DebianBanner', @debianbanner ) -%>
 <% end -%>
-<% if denygroups -%>
+<% if @denygroups -%>
 
 # DenyGroups
 #   This keyword can be followed by a list of group name patterns,
@@ -202,9 +202,9 @@ ChrootDirectory <%= chrootdirectory %>
 #  
 #   See PATTERNS in ssh_config(5) for more information on patterns.
 #   [ Puppet default is: false (not defined) ]
-DenyGroups <%= array_to_string( name, denygroups, ' ' ) %>
+DenyGroups <%= array_to_string( name, @denygroups, ' ' ) %>
 <% end -%>
-<% if denyusers -%>
+<% if @denyusers -%>
 
 # DenyUsers
 #   This keyword can be followed by a list of user name patterns, separated
@@ -218,9 +218,9 @@ DenyGroups <%= array_to_string( name, denygroups, ' ' ) %>
 #            
 #   See PATTERNS in ssh_config(5) for more information on patterns.
 #   [ Puppet default is: false (not defined) ]
-DenyUsers <% if permitrootlogin == false -%>root <% end -%><%= array_to_string( name, denyusers, ' ' ) %>
+DenyUsers <% if @permitrootlogin == false -%>root <% end -%><%= array_to_string( name, @denyusers, ' ' ) %>
 <% end -%>
-<% if forcecommand -%>
+<% if @forcecommand -%>
 
 # ForceCommand
 #   Forces the execution of the command specified by ForceCommand, ignoring
@@ -247,14 +247,14 @@ ForceCommand <%= forcecommand %>
 #   'clientspecified' to allow the client to select the address to which the
 #   forwarding is bound.  The default is 'no'.
 #   [ Puppet default is: false 'no' ]
-<%= do_boolean( name, 'GatewayPorts', gatewayports ) -%>
+<%= do_boolean( name, 'GatewayPorts', @gatewayports ) -%>
 
 # GSSAPIAuthentication
 #   Specifies whether user authentication based on GSSAPI is allowed.
 #   The default is 'no'.  Note that this option applies to protocol
 #   version 2 only.
 #   [ Puppet default is: false 'no' ]
-<%= do_boolean( name, 'GSSAPIAuthentication', gssapiauthentication ) -%>
+<%= do_boolean( name, 'GSSAPIAuthentication', @gssapiauthentication ) -%>
 
 # GSSAPIKeyExchange
 #   Specifies whether key exchange based on GSSAPI is allowed. GSSAPI
@@ -262,14 +262,14 @@ ForceCommand <%= forcecommand %>
 #   The default is 'no'.  Note that this option applies to protocol
 #   version 2 only.
 #   [ Puppet default is: false 'no' ]
-<%= do_boolean( name, 'GSSAPIKeyExchange', gssapikeyexchange ) -%>
+<%= do_boolean( name, 'GSSAPIKeyExchange', @gssapikeyexchange ) -%>
 
 # GSSAPICleanupCredentials
 #   Specifies whether to automatically destroy the user's credentials
 #   cache on logout.  The default is 'yes'.  Note that this option
 #   applies to protocol version 2 only.
 #   [ Puppet default is: true 'yes' ]
-<%= do_boolean( name, 'GSSAPICleanupCredentials', gssapicleanupcredentials ) -%>
+<%= do_boolean( name, 'GSSAPICleanupCredentials', @gssapicleanupcredentials ) -%>
 
 # GSSAPIStrictAcceptorCheck
 #   Determines whether to be strict about the identity of the GSSAPI
@@ -282,7 +282,7 @@ ForceCommand <%= forcecommand %>
 #   protocol version 2 GSSAPI connections, and setting it to 'no' may
 #   only work with recent Kerberos GSSAPI libraries.
 #   [ Puppet default is: true 'yes' ]
-<%= do_boolean( name, 'GSSAPIStrictAcceptorCheck', gssapistrictacceptorcheck ) -%>
+<%= do_boolean( name, 'GSSAPIStrictAcceptorCheck', @gssapistrictacceptorcheck ) -%>
 
 # GSSAPIStoreCredentialsOnRekey
 #   Controls whether the user's GSSAPI credentials should be updated
@@ -290,7 +290,7 @@ ForceCommand <%= forcecommand %>
 #   used to accepted renewed or updated credentials from a compatible
 #   client. The default is 'no'.
 #   [ Puppet default is: false 'no' ]
-<%= do_boolean( name, 'GSSAPIStoreCredentialsOnRekey', gssapistorecredentialsonrekey ) -%>
+<%= do_boolean( name, 'GSSAPIStoreCredentialsOnRekey', @gssapistorecredentialsonrekey ) -%>
 
 # HostbasedAuthentication
 #   Specifies whether rhosts or /etc/hosts.equiv authentication
@@ -299,7 +299,7 @@ ForceCommand <%= forcecommand %>
 #   RhostsRSAAuthentication and applies to protocol version 2 only.
 #   The default is 'no'.
 #   [ Puppet default is: false 'no' ]
-<%= do_boolean( name, 'HostbasedAuthentication', hostbasedauthentication ) -%>
+<%= do_boolean( name, 'HostbasedAuthentication', @hostbasedauthentication ) -%>
 
 # HostbasedUsesNameFromPacketOnly
 #   Specifies whether or not the server will attempt to perform a reverse
@@ -309,8 +309,8 @@ ForceCommand <%= forcecommand %>
 #   than attempting to resolve the name from the TCP connection itself.
 #   The default is 'no'.
 #   [ Puppet default is: false 'no' ]
-<%= do_boolean( name, 'HostbasedUsesNameFromPacketOnly', hostbasedusesnamefrompacketonly ) -%>
-<% if hostcertificate -%>
+<%= do_boolean( name, 'HostbasedUsesNameFromPacketOnly', @hostbasedusesnamefrompacketonly ) -%>
+<% if @hostcertificate -%>
 
 # HostCertificate
 #   Specifies a file containing a public host certificate.  The
@@ -339,14 +339,14 @@ HostKey <%= dsakey %>
 #   /etc/hosts.equiv and /etc/ssh/shosts.equiv are still used.
 #   The default is 'yes'.
 #   [ Puppet default is: true 'yes' ]
-<%= do_boolean( name, 'IgnoreRhosts', ignorerhosts ) -%>
+<%= do_boolean( name, 'IgnoreRhosts', @ignorerhosts ) -%>
 
 # IgnoreUserKnownHosts
 #   Specifies whether sshd(8) should ignore the user's
 #   ~/.ssh/known_hosts during RhostsRSAAuthentication or
 #   HostbasedAuthentication.  The default is 'no'.
 #   [ Puppet default is: false 'no' ]
-<%= do_boolean( name, 'IgnoreUserKnownHosts', ignoreuserknownhosts ) -%>
+<%= do_boolean( name, 'IgnoreUserKnownHosts', @ignoreuserknownhosts ) -%>
 
 # KerberosAuthentication
 #   Specifies whether the password provided by the user for
@@ -355,27 +355,27 @@ HostKey <%= dsakey %>
 #   which allows the verification of the KDC's identity.
 #   The default is 'no'.
 #   [ Puppet default is: false 'no' ]
-<%= do_boolean( name, 'KerberosAuthentication', kerberosauthentication ) -%>
+<%= do_boolean( name, 'KerberosAuthentication', @kerberosauthentication ) -%>
 
 # KerberosGetAFSToken
 #   If AFS is active and the user has a Kerberos 5 TGT, attempt to
 #   acquire an AFS token before accessing the user's home directory.
 #   The default is 'no'.
 #   [ Puppet default is: false 'no' ]
-<%= do_boolean( name, 'KerberosGetAFSToken', kerberosgetafstoken ) -%>
+<%= do_boolean( name, 'KerberosGetAFSToken', @kerberosgetafstoken ) -%>
 
 # KerberosOrLocalPasswd
 #   If password authentication through Kerberos fails then the
 #   password will be validated via any additional local mechanism
 #   such as /etc/passwd.  The default is 'yes'.
 #   [ Puppet default is: true 'yes' ]
-<%= do_boolean( name, 'KerberosOrLocalPasswd', kerberosorlocalpasswd ) -%>
+<%= do_boolean( name, 'KerberosOrLocalPasswd', @kerberosorlocalpasswd ) -%>
 
 # KerberosTicketCleanup
 #   Specifies whether to automatically destroy the user's ticket
 #   cache file on logout.  The default is 'yes'.
 #   [ Puppet default is: true 'yes' ]
-<%= do_boolean( name, 'KerberosTicketCleanup', kerberosticketcleanup ) -%>
+<%= do_boolean( name, 'KerberosTicketCleanup', @kerberosticketcleanup ) -%>
 
 # KeyRegenerationInterval
 #   In protocol version 1, the ephemeral server key is automatically
@@ -384,7 +384,7 @@ HostKey <%= dsakey %>
 #   sessions by later breaking into the machine and stealing the
 #   keys.  The key is never stored anywhere.  If the value is 0, the
 #   key is never regenerated.  The default is 3600 (seconds).
-<%= do_integer( name, 'KeyRegenerationInterval', keyregenerationinterval ) -%> 
+<%= do_integer( name, 'KeyRegenerationInterval', @keyregenerationinterval ) -%> 
   
 # ListenAddress
 #   Specifies the local addresses sshd(8) should listen on.  The following
@@ -399,7 +399,7 @@ HostKey <%= dsakey %>
 #   Multiple ListenAddress options are permitted.  Additionally, any Port
 #   options must precede this option for non-port qualified addresses.  
 <% listenaddress.sort.each do |address| -%>
-<%= do_listenaddress( name, address ) -%>
+<%= do_listenaddress( name, @address ) -%>
 <% end -%>
 
 # LoginGraceTime
@@ -407,7 +407,7 @@ HostKey <%= dsakey %>
 #   successfully logged in.  If the value is 0, there is no time
 #   limit.  The default is 120 seconds.
 #   [ Puppet default is: 30 ]
-<%= do_integer( name, 'LoginGraceTime', logingracetime ) -%>
+<%= do_integer( name, 'LoginGraceTime', @logingracetime ) -%>
 
 # LogLevel
 #   Gives the verbosity level that is used when logging messages from
@@ -417,7 +417,7 @@ HostKey <%= dsakey %>
 #   higher levels of debugging output.  Logging with a DEBUG level
 #   violates the privacy of users and is not recommended.
 #   [ Puppet default is: VERBOSE ]
-<%= do_loglevel( name, log_level ) -%>
+<%= do_loglevel( name, @log_level ) -%>
   
 # MACs
 #   Specifies the available MAC (message authentication code)
@@ -428,20 +428,20 @@ HostKey <%= dsakey %>
 #       hmac-md5,hmac-sha1,umac-64@openssh.com,
 #       hmac-ripemd160,hmac-sha1-96,hmac-md5-96
 #   [Puppet default is: 'hmac-sha1', 'hmac-sha1-96' ]
-<%= do_macs( name, macs ) -%>
+<%= do_macs( name, @macs ) -%>
 
 # MaxAuthTries
 #   Specifies the maximum number of authentication attempts permitted
 #   per connection.  Once the number of failures reaches half this
 #   value, additional failures are logged.  The default is 6.
 #   [ Puppet default is: 6 ]
-<%= do_integer( name, 'MaxAuthTries', maxauthtries ) -%>
+<%= do_integer( name, 'MaxAuthTries', @maxauthtries ) -%>
 
 # MaxSessions
 #   Specifies the maximum number of open sessions permitted per
 #   network connection.  The default is 10.
 #   [ Puppet default is: 1 ]
-<%= do_integer( name, 'MaxSessions', maxsessions ) -%>
+<%= do_integer( name, 'MaxSessions', @maxsessions ) -%>
 
 # MaxStartups
 #   Specifies the maximum number of concurrent unauthenticated connections
@@ -462,7 +462,7 @@ MaxStartups <%= maxstartups %>
 #   Specifies whether password authentication is allowed.  The
 #   default is 'yes'.
 #   [ Puppet default is: true 'yes' ]
-<%= do_boolean( name, 'PasswordAuthentication', passwordauthentication ) -%>
+<%= do_boolean( name, 'PasswordAuthentication', @passwordauthentication ) -%>
 <% if @operatingsystem.downcase == 'debian' || @operatingsystem.downcase == 'ubuntu' -%>
 
 # PermitBlacklistedKeys
@@ -472,7 +472,7 @@ MaxStartups <%= maxstartups %>
 #   be logged but accepted.  If 'no', then attempts to authenticate
 #   with compromised keys will be rejected.  The default is 'no'.
 #   [ Puppet default is: false 'no' ]
-<%= do_boolean( name, 'PermitBlacklistedKeys', permitblacklistedkeys ) -%>
+<%= do_boolean( name, 'PermitBlacklistedKeys', @permitblacklistedkeys ) -%>
 <% end -%>
 
 # PermitEmptyPasswords
@@ -480,9 +480,9 @@ MaxStartups <%= maxstartups %>
 #   server allows login to accounts with empty password strings.  The
 #   default is 'no'.
 #   [ Puppet default is: false 'no' ]
-<%= do_boolean( name, 'PermitEmptyPasswords', permitemptypasswords ) -%>
+<%= do_boolean( name, 'PermitEmptyPasswords', @permitemptypasswords ) -%>
 
-<% if allowtcpforwarding -%>
+<% if @allowtcpforwarding -%>
 # PermitOpen
 #   Specifies the destinations to which TCP port forwarding is permitted.
 #   The forwarding specification must be one of the following forms:
@@ -493,8 +493,8 @@ MaxStartups <%= maxstartups %>
 #
 #   Multiple forwards may be specified by separating them with whitespace.
 #   An argument of 'any' can be used to remove all restrictions and permit
-#   any forwarding requests.  By default all port forwarding requests are per‐
-#   mitted.
+#   any forwarding requests.  By default all port forwarding requests are
+#   permitted.
 #   [ Puppet default is: empty array (not defined) ]
 <% permitopen.sort.each do |address| -%>
 PermitOpen <%= address %>
@@ -517,7 +517,7 @@ PermitOpen <%= address %>
 #
 #   If this option is set to 'no', root is not allowed to log in.
 #   [ Puppet default is: false 'no' ]
-<%= do_permitrootlogin( name, permitrootlogin ) -%>
+<%= do_permitrootlogin( name, @permitrootlogin ) -%>
 
 # PermitTunnel
 #   Specifies whether tun(4) device forwarding is allowed.  The
@@ -525,7 +525,7 @@ PermitOpen <%= address %>
 #   (layer 2), or 'no'.  Specifying 'yes' permits both
 #   'point-to-point' and 'ethernet'.  The default is 'no'.
 #   [ Puppet default is: false 'no' ]
-<%= do_permittunnel( name, permittunnel ) -%>
+<%= do_permittunnel( name, @permittunnel ) -%>
 
 # PermitUserEnvironment
 #   Specifies whether ~/.ssh/environment and environment= options in
@@ -534,7 +534,7 @@ PermitOpen <%= address %>
 #   access restrictions in some configurations using mechanisms such as
 #   LD_PRELOAD.
 #   [ Puppet default is: false 'no' ]
-<%= do_boolean( name, 'PermitUserEnvironment', permituserenvironment ) -%>
+<%= do_boolean( name, 'PermitUserEnvironment', @permituserenvironment ) -%>
 
 # PidFile
 #   Specifies the file that contains the process ID of the SSH
@@ -546,29 +546,29 @@ PermitOpen <%= address %>
 #   Specifies the port number that sshd(8) listens on.  The default is 22.
 #   Multiple options of this type are permitted.  See also ListenAddress.
 #   [ Puppet default is: 22 ]
-<%= do_integer( name, 'Port', port ) -%>
+<%= do_integer( name, 'Port', @port ) -%>
 
 # PrintLastLog
 #   Specifies whether sshd(8) should print the date and time of the
 #   last user login when a user logs in interactively.
 #   The default is 'yes'.
 #   [ Puppet default is: true 'yes' ]
-<%= do_boolean( name, 'PrintLastLog', printlastlog ) -%>
+<%= do_boolean( name, 'PrintLastLog', @printlastlog ) -%>
 
 # PrintMotd
 #   Specifies whether sshd(8) should print /etc/motd when a user logs
 #   in interactively.  (On some systems it is also printed by the
 #   shell, /etc/profile, or equivalent.)  The default is 'yes'.
 #   [ Puppet default is: false 'no' ]
-<%= do_boolean( name, 'PrintMotd', printmotd ) -%>
+<%= do_boolean( name, 'PrintMotd', @printmotd ) -%>
 
 # Protocol
 #   Specifies the protocol versions sshd(8) supports.  The possible
-#   values are ‘1’ and ‘2’.  Multiple versions must be
-#   comma-separated.  The default is ‘2’.  Note that the order of the
-#   protocol list does not indicate preference, because the client
-#   selects among multiple protocol versions offered by the server.
-#   Specifying '2,1' is identical to '1,2'.
+#   values are 1 and 2. Multiple versions must be comma-separated
+#   The default is 2. Note that the order of the protocol list does
+#   not indicate preference, because the client selects among multiple
+#   protocol versions offered by the server. Specifying '2,1' is
+#   identical to '1,2'.
 #   [ Puppet default is: 2 ]
 <%= do_integer_range( name, "Protocol", protocol, 1, 2 ) -%>
 
@@ -577,8 +577,8 @@ PermitOpen <%= address %>
 #   default is 'yes'.  Note that this option applies to protocol
 #   version 2 only.
 #   [ Puppet default is: false 'no' ]
-<%= do_boolean( name, 'PubkeyAuthentication', pubkeyauthentication ) -%>
-<% if revokedkeys -%>
+<%= do_boolean( name, 'PubkeyAuthentication', @pubkeyauthentication ) -%>
+<% if @revokedkeys -%>
 
 # RevokedKeys
 #   Specifies a list of revoked public keys.  Keys listed in this
@@ -593,20 +593,20 @@ RevokedKeys <%= revokedkeys %>
 #   together with successful RSA host authentication is allowed.  The
 #   default is 'no'.  This option applies to protocol version 1 only.
 #   [ Puppet default is: false 'no' ]
-<%= do_boolean( name, 'RhostsRSAAuthentication', rhostsrsaauthentication ) -%>
+<%= do_boolean( name, 'RhostsRSAAuthentication', @rhostsrsaauthentication ) -%>
 
 # RSAAuthentication
 #   Specifies whether pure RSA authentication is allowed.  The
 #   default is 'yes'.  This option applies to protocol version 1
 #   only.
 #   [ Puppet default is: false 'no' ]
-<%= do_boolean( name, 'RSAAuthentication', rsaauthentication ) -%>
+<%= do_boolean( name, 'RSAAuthentication', @rsaauthentication ) -%>
 
 # ServerKeyBits
 #   Defines the number of bits in the ephemeral protocol version 1
 #   server key.  The minimum value is 512, and the default is 1024.
 #   [ Puppet default is: 2048 ]
-<%= do_integer( name, 'ServerKeyBits', serverkeybits ) -%>
+<%= do_integer( name, 'ServerKeyBits', @serverkeybits ) -%>
 
 # StrictModes
 #   Specifies whether sshd(8) should check file modes and ownership
@@ -617,7 +617,7 @@ RevokedKeys <%= revokedkeys %>
 #   Note that this does not apply to ChrootDirectory, whose
 #   permissions and ownership are checked unconditionally.
 #   [ Puppet default is: true 'yes' ]
-<%= do_boolean( name, 'StrictModes', strictmodes ) -%>
+<%= do_boolean( name, 'StrictModes', @strictmodes ) -%>
 
 # Subsystem
 #   Configures an external subsystem (e.g. file transfer daemon).  Arguments
@@ -632,7 +632,7 @@ RevokedKeys <%= revokedkeys %>
 #
 #   By default no subsystems are defined.
 #   Note that this option applies to protocol version 2 only.
-<% if chrootdirectory -%>
+<% if @chrootdirectory -%>
 Subsystem sftp internal-sftp
 <% else -%>
 Subsystem sftp <%= sftp_server %>
@@ -643,7 +643,7 @@ Subsystem sftp <%= sftp_server %>
 #   The possible values are: DAEMON, USER, AUTH, LOCAL0, LOCAL1, LOCAL2,
 #   LOCAL3, LOCAL4, LOCAL5, LOCAL6, LOCAL7.  The default is AUTH.
 #   [ Puppet default is: AUTH ]
-<%= do_syslogfacility( name, syslogfacility ) -%>
+<%= do_syslogfacility( name, @syslogfacility ) -%>
 
 # TCPKeepAlive
 #   Specifies whether the system should send TCP keepalive messages to the
@@ -661,13 +661,13 @@ Subsystem sftp <%= sftp_server %>
 #   To disable TCP keepalive messages, the value should be set to 'no'.
 #   This option was formerly called KeepAlive.
 #   [ Puppet default is: true 'yes' ]
-<%= do_boolean( name, 'TCPKeepAlive', tcpkeepalive ) -%>
-<% if trustedusercakeys -%>
+<%= do_boolean( name, 'TCPKeepAlive', @tcpkeepalive ) -%>
+<% if @trustedusercakeys -%>
 
 # TrustedUserCAKeys
 #   Specifies a file containing public keys of certificate authorities that
 #   are trusted to sign user certificates for authentication.  Keys are
-#   listed one per line; empty lines and comments starting with ‘#’ are
+#   listed one per line; empty lines and comments starting with # are
 #   allowed.  If a certificate is presented for authentication and has
 #   its signing CA key listed in this file, then it may be used for
 #   authentication for any user listed in the certificate's principals
@@ -684,7 +684,7 @@ TrustedUserCAKeys <%= trustedusercakeys %>
 #   check that the resolved host name for the remote IP address maps
 #   back to the very same IP address.  The default is 'yes'.
 #   [ Puppet default is: true 'yes' ]
-<%= do_boolean( name, 'UseDNS', usedns ) -%>
+<%= do_boolean( name, 'UseDNS', @usedns ) -%>
 
 # UseLogin
 #   Specifies whether login(1) is used for interactive login sessions.
@@ -694,8 +694,8 @@ TrustedUserCAKeys <%= trustedusercakeys %>
 #   cookies.  If UsePrivilegeSeparation is specified, it will be disabled
 #   after authentication.
 #   [ Puppet default is: false 'no' ]
-<%= do_boolean( name, 'UseLogin', uselogin ) -%>
-<% if os != 'openbsd' -%>
+<%= do_boolean( name, 'UseLogin', @uselogin ) -%>
+<% if @os != 'openbsd' -%>
 
 # UsePAM
 #   Enables the Pluggable Authentication Module interface.  If set to 'yes'
@@ -717,7 +717,7 @@ TrustedUserCAKeys <%= trustedusercakeys %>
 #   If UsePAM is enabled, you will not be able to run sshd(8) as a
 #   non-root user.  The default is 'no'.
 #   [ Puppet default is: true 'yes' ]
-<%= do_boolean( name, 'UsePAM', usepam ) -%>
+<%= do_boolean( name, 'UsePAM', @usepam ) -%>
 <% end -%>
 
 # UsePrivilegeSeparation
@@ -729,14 +729,14 @@ TrustedUserCAKeys <%= trustedusercakeys %>
 #   containing any corruption within the unprivileged processes.
 #   The default is 'yes'.
 #   [ Puppet default is: true 'yes' ]
-<%= do_boolean( name, 'UsePrivilegeSeparation', useprivilegeseparation ) -%>
+<%= do_boolean( name, 'UsePrivilegeSeparation', @useprivilegeseparation ) -%>
 
 # X11DisplayOffset
 #   Specifies the first display number available for sshd(8)'s X11
 #   forwarding.  This prevents sshd from interfering with real X11
 #   servers.  The default is 10.
 #   [ Puppet default is: 10 ]
-<%= do_integer( name, 'X11DisplayOffset', x11displayoffset ) -%>
+<%= do_integer( name, 'X11DisplayOffset', @x11displayoffset ) -%>
 
 # X11Forwarding
 #   Specifies whether X11 forwarding is permitted.  The argument must be
@@ -760,7 +760,7 @@ TrustedUserCAKeys <%= trustedusercakeys %>
 #   forwarders.  X11 forwarding is automatically disabled if
 #   UseLogin is enabled.
 #   [ Puppet default is: false 'no' ]
-<%= do_boolean( name, 'X11Forwarding', x11forwarding ) -%>
+<%= do_boolean( name, 'X11Forwarding', @x11forwarding ) -%>
 
 # X11UseLocalhost
 #   Specifies whether sshd(8) should bind the X11 forwarding server to the
@@ -773,7 +773,7 @@ TrustedUserCAKeys <%= trustedusercakeys %>
 #   bound to the wildcard address.  The argument must be 'yes' or 'no'.
 #   The default is 'yes'.
 #   [ Puppet default is: true 'yes' ]
-<%= do_boolean( name, 'X11UseLocalhost', x11uselocalhost ) -%>
+<%= do_boolean( name, 'X11UseLocalhost', @x11uselocalhost ) -%>
     
 # XAuthLocation
 #   Specifies the full pathname of the xauth(1) program.
@@ -785,7 +785,7 @@ XAuthLocation <%= xauthlocation %>
 # Alphabetical refactoring above #
 ##################################
 
-<% if match_users || match_group || match_host || match_address -%>
+<% if @match_users || @match_group || @match_host || @match_address -%>
 # Match
 #   Introduces a conditional block.  If all of the criteria on the Match line
 #   are satisfied, the keywords on the following lines override those set in
@@ -814,34 +814,34 @@ XAuthLocation <%= xauthlocation %>
 #   RhostsRSAAuthentication, RSAAuthentication, X11DisplayOffset,
 #   X11Forwarding and X11UseLocalHost.
 #   [ Puppet default is: false (not defined) ]
-<% if match_users -%>
+<% if @match_users -%>
 
 # Match users
-<% match_users.sort.map do |string, data| -%>
+<% @match_users.sort.map do |string, data| -%>
 Match User <%= string %>
 <%= process_sshd_config_match_hash(string, data) %>
 <% end -%>
 <% end -%>
-<% if match_group -%>
+<% if @match_group -%>
 
 # Match group
-<% match_group.sort.map do |string, data| -%>
+<% @match_group.sort.map do |string, data| -%>
 Match Group <%= string %>
 <%= process_sshd_config_match_hash(string, data) %>
 <% end -%>
 <% end -%>
-<% if match_host -%>
+<% if @match_host -%>
 
 # Match host
-<% match_host.sort.map do |string, data| -%>
+<% @match_host.sort.map do |string, data| -%>
 Match Host <%= string %>
 <%= process_sshd_config_match_hash(string, data) %>
 <% end -%>
 <% end -%>
-<% if match_address -%>
+<% if @match_address -%>
 
 # Match address
-<% match_address.sort.map do |string, data| -%>
+<% @match_address.sort.map do |string, data| -%>
 Match Address <%= string %>
 <%= process_sshd_config_match_hash(string, data) %>
 <% end -%>

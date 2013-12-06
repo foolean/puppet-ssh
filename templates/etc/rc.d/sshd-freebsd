@@ -3,13 +3,13 @@
 # $FreeBSD: release/9.0.0/etc/rc.d/sshd 221420 2011-05-04 07:34:44Z des $
 #
 
-# PROVIDE: <%= sshd_name %><%= suffix %>
+# PROVIDE: <%= @sshd_name %><%= @suffix %>
 # REQUIRE: LOGIN cleanvar
 # KEYWORD: shutdown
 
 . /etc/rc.subr
 
-name="<%= sshd_name %><%= suffix %>"
+name="<%= @sshd_name %><%= @suffix %>"
 rcvar=`set_rcvar`
 command="/usr/sbin/${name}"
 keygen_cmd="sshd_keygen"
@@ -61,20 +61,20 @@ sshd_keygen()
 		    -f /etc/ssh/ssh_host_key -N ''
 	fi
 
-	if [ -f <%= dsakey %> ]; then
+	if [ -f <%= @dsakey %> ]; then
 		echo "You already have a DSA host key" \
-		    "in <%= dsakey %>"
+		    "in <%= @dsakey %>"
 		echo "Skipping protocol version 2 DSA Key Generation"
 	else
-		/usr/bin/ssh-keygen -t dsa -f <%= dsakey %> -N ''
+		/usr/bin/ssh-keygen -t dsa -f <%= @dsakey %> -N ''
 	fi
 
-	if [ -f <%= rsakey %> ]; then
+	if [ -f <%= @rsakey %> ]; then
 		echo "You already have an RSA host key" \
-		    "in <%= rsakey %>"
+		    "in <%= @rsakey %>"
 		echo "Skipping protocol version 2 RSA Key Generation"
 	else
-		/usr/bin/ssh-keygen -t rsa -f <%= rsakey %> -N ''
+		/usr/bin/ssh-keygen -t rsa -f <%= @rsakey %> -N ''
 	fi
 
 	if [ -f /etc/ssh/ssh_host_ecdsa_key ]; then
@@ -90,9 +90,9 @@ sshd_keygen()
 sshd_precmd()
 {
 	if [ ! -f /etc/ssh/ssh_host_key -o \
-	    ! -f <%= dsakey %> -o \
+	    ! -f <%= @dsakey %> -o \
 	    ! -f /etc/ssh/ssh_host_ecdsa_key -o \
-	    ! -f <%= rsakey %> ]; then
+	    ! -f <%= @rsakey %> ]; then
 		user_reseed
 		run_rc_command keygen
 	fi

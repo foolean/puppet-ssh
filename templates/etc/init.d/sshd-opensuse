@@ -3,30 +3,30 @@
 #
 # Author: Jiri Smid <feedback@suse.de>
 #
-# <%= ssh_init %><%= suffix %>
+# <%= @ssh_init %><%= @suffix %>
 #
 #   and symbolic its link
 #
 # /usr/sbin/rcsshd
 #
 ### BEGIN INIT INFO
-# Provides: <%= sshd_name %><%= suffix %>
+# Provides: <%= @sshd_name %><%= @suffix %>
 # Required-Start: $network $remote_fs
 # Required-Stop: $network $remote_fs
 # Should-Start: haveged auditd
 # Default-Start: 3 5
 # Default-Stop: 0 1 2 6
-# Description: Start the <%= sshd_name %><%= suffix %> daemon
+# Description: Start the <%= @sshd_name %><%= @suffix %> daemon
 ### END INIT INFO
 
-SSHD_BIN=<%= sshd_binary %><%= suffix %>
+SSHD_BIN=<%= @sshd_binary %><%= @suffix %>
 test -x $SSHD_BIN || exit 5
 
-SSHD_SYSCONFIG=<%= ssh_default %><%= suffix %>
+SSHD_SYSCONFIG=<%= @ssh_default %><%= @suffix %>
 test -r $SSHD_SYSCONFIG || exit 6
 . $SSHD_SYSCONFIG
 
-SSHD_PIDFILE=/var/run/<%= sshd_name %><%= suffix %>.pid
+SSHD_PIDFILE=/var/run/<%= @sshd_name %><%= @suffix %>.pid
 
 . /etc/rc.status
 
@@ -44,21 +44,21 @@ rc_reset
 
 case "$1" in
     start)
-        if ! grep -q '^[[:space:]]*HostKey[[:space:]]' <%= sshd_config %><%= suffix %>; then
+        if ! grep -q '^[[:space:]]*HostKey[[:space:]]' <%= @sshd_config %><%= @suffix %>; then
                 if ! test -f /etc/ssh/ssh_host_key ; then
                     echo Generating /etc/ssh/ssh_host_key.
                     ssh-keygen -t rsa1 -b 1024 -f /etc/ssh/ssh_host_key -N ''
                 fi
-                if ! test -f <%= dsakey %> ; then
-                    echo Generating <%= dsakey %>.
-                    ssh-keygen -t dsa -b 1024 -f <%= dsakey %> -N ''
+                if ! test -f <%= @dsakey %> ; then
+                    echo Generating <%= @dsakey %>.
+                    ssh-keygen -t dsa -b 1024 -f <%= @dsakey %> -N ''
                 fi
-                if ! test -f <%= rsakey %> ; then
-                    echo Generating <%= rsakey %>.
-                    ssh-keygen -t rsa -b 2048 -f <%= rsakey %> -N ''
+                if ! test -f <%= @rsakey %> ; then
+                    echo Generating <%= @rsakey %>.
+                    ssh-keygen -t rsa -b 2048 -f <%= @rsakey %> -N ''
                 fi
         fi
-	echo -n "Starting SSH<%= suffix %> daemon"
+	echo -n "Starting SSH<%= @suffix %> daemon"
 	## Start daemon with startproc(8). If this fails
 	## the echo return value is set appropriate.
 
@@ -68,7 +68,7 @@ case "$1" in
 	rc_status -v
 	;;
     stop)
-	echo -n "Shutting down SSH<%= suffix %> daemon"
+	echo -n "Shutting down SSH<%= @suffix %> daemon"
 	## Stop daemon with killproc(8) and if this fails
 	## set echo the echo return value.
 
@@ -98,7 +98,7 @@ case "$1" in
 	## Signal the daemon to reload its config. Most daemons
 	## do this on signal 1 (SIGHUP).
 
-	echo -n "Reload service <%= sshd_name %><%= suffix %>"
+	echo -n "Reload service <%= @sshd_name %><%= @suffix %>"
 
 	killproc -p $SSHD_PIDFILE -HUP $SSHD_BIN
 
@@ -106,7 +106,7 @@ case "$1" in
 
         ;;
     status)
-	echo -n "Checking for service <%= sshd_name %><%= suffix %> "
+	echo -n "Checking for service <%= @sshd_name %><%= @suffix %> "
         ## Check status with checkproc(8), if process is running
         ## checkproc will return with exit status 0.
 
@@ -124,7 +124,7 @@ case "$1" in
 	## Optional: Probe for the necessity of a reload,
 	## give out the argument which is required for a reload.
 
-        test <%= sshd_config %><%= suffix %> -nt $SSHD_PIDFILE && echo reload
+        test <%= @sshd_config %><%= @suffix %> -nt $SSHD_PIDFILE && echo reload
 	;;
     *)
 	echo "Usage: $0 {start|stop|status|try-restart|restart|force-reload|reload|probe}"

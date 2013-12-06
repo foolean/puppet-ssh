@@ -1,4 +1,4 @@
-# Configuration file for the <%= sshd_name %><%= suffix %> service.
+# Configuration file for the <%= @sshd_name %><%= @suffix %> service.
 
 # The server keys are automatically generated if they ommited
 # to change the automatic creation uncomment the approprite
@@ -13,10 +13,10 @@ AUTOCREATE_SERVER_KEYS=NO
 export SSH_USE_STRONG_RNG=0
 # export SSH_USE_STRONG_RNG=1
 
-# Options to pass to <%= sshd_name %><%= suffix %>
-<% if port == '22' -%>
+# Options to pass to <%= @sshd_name %><%= @suffix %>
+<% if @port == '22' -%>
 OPTIONS=""
 <% else -%>
-OPTIONS="-f <%= sshd_config %><%= suffix %>"
+OPTIONS="-f <%= @sshd_config %><%= @suffix %>"
 <% end -%>
 

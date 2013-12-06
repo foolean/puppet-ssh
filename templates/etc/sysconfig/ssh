@@ -1,13 +1,13 @@
 ## Path:	Network/Remote access/SSH
-## Description:	SSH<%= suffix %> server settings
+## Description:	SSH<%= @suffix %> server settings
 ## Type:	string
 ## Default:	""
-## ServiceRestart: <%= sshd_name %><%= suffix %>
+## ServiceRestart: <%= @sshd_name %><%= @suffix %>
 #
-# Options for <%= sshd_name %><%= suffix %>
+# Options for <%= @sshd_name %><%= @suffix %>
 #
-<% if port == '22' -%>
+<% if @port == '22' -%>
 SSHD_OPTS=""
 <% else -%>
-SSHD_OPTS="-f <%= sshd_config %><%= suffix %>"
+SSHD_OPTS="-f <%= @sshd_config %><%= @suffix %>"
 <% end -%>

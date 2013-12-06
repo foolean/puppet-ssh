@@ -1,11 +1,11 @@
 # Default settings for openssh-server.
-# This file is sourced by /bin/sh from <%= ssh_init %><%= suffix %>.
+# This file is sourced by /bin/sh from <%= @ssh_init %><%= @suffix %>.
 
-# Options to pass to <%= sshd_name %><%= suffix %>
-<% if port == '22' -%>
+# Options to pass to <%= @sshd_name %><%= @suffix %>
+<% if @port == '22' -%>
 SSHD_OPTS=""
 <% else -%>
-SSHD_OPTS="-f <%= sshd_config %><%= suffix %>"
+SSHD_OPTS="-f <%= @sshd_config %><%= @suffix %>"
 <% end -%>
 
 # OOM-killer adjustment for sshd (see
