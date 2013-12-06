@@ -255,6 +255,7 @@ ForceCommand <%= forcecommand %>
 #   version 2 only.
 #   [ Puppet default is: false 'no' ]
 <%= do_boolean( name, 'GSSAPIAuthentication', @gssapiauthentication ) -%>
+<% if @operatingsystem.downcase == 'debian' || @operatingsystem.downcase == 'ubuntu' -%>
 
 # GSSAPIKeyExchange
 #   Specifies whether key exchange based on GSSAPI is allowed. GSSAPI
@@ -263,6 +264,7 @@ ForceCommand <%= forcecommand %>
 #   version 2 only.
 #   [ Puppet default is: false 'no' ]
 <%= do_boolean( name, 'GSSAPIKeyExchange', @gssapikeyexchange ) -%>
+<% end -%>
 
 # GSSAPICleanupCredentials
 #   Specifies whether to automatically destroy the user's credentials
@@ -270,6 +272,7 @@ ForceCommand <%= forcecommand %>
 #   applies to protocol version 2 only.
 #   [ Puppet default is: true 'yes' ]
 <%= do_boolean( name, 'GSSAPICleanupCredentials', @gssapicleanupcredentials ) -%>
+<% if @operatingsystem.downcase == 'debian' || @operatingsystem.downcase == 'ubuntu' -%>
 
 # GSSAPIStrictAcceptorCheck
 #   Determines whether to be strict about the identity of the GSSAPI
@@ -283,6 +286,8 @@ ForceCommand <%= forcecommand %>
 #   only work with recent Kerberos GSSAPI libraries.
 #   [ Puppet default is: true 'yes' ]
 <%= do_boolean( name, 'GSSAPIStrictAcceptorCheck', @gssapistrictacceptorcheck ) -%>
+<% end -%>
+<% if @operatingsystem.downcase == 'debian' || @operatingsystem.downcase == 'ubuntu' -%>
 
 # GSSAPIStoreCredentialsOnRekey
 #   Controls whether the user's GSSAPI credentials should be updated
@@ -291,6 +296,7 @@ ForceCommand <%= forcecommand %>
 #   client. The default is 'no'.
 #   [ Puppet default is: false 'no' ]
 <%= do_boolean( name, 'GSSAPIStoreCredentialsOnRekey', @gssapistorecredentialsonrekey ) -%>
+<% end -%>
 
 # HostbasedAuthentication
 #   Specifies whether rhosts or /etc/hosts.equiv authentication
@@ -356,6 +362,7 @@ HostKey <%= dsakey %>
 #   The default is 'no'.
 #   [ Puppet default is: false 'no' ]
 <%= do_boolean( name, 'KerberosAuthentication', @kerberosauthentication ) -%>
+<% if versioncmp( @sshversion, '5.1p1' ) > 0 -%>
 
 # KerberosGetAFSToken
 #   If AFS is active and the user has a Kerberos 5 TGT, attempt to
@@ -363,6 +370,7 @@ HostKey <%= dsakey %>
 #   The default is 'no'.
 #   [ Puppet default is: false 'no' ]
 <%= do_boolean( name, 'KerberosGetAFSToken', @kerberosgetafstoken ) -%>
+<% end -%>
 
 # KerberosOrLocalPasswd
 #   If password authentication through Kerberos fails then the
