@@ -977,7 +977,7 @@ define ssh::server (
             'fedora'   => '/etc/sysconfig/sshd',
             'opensuse' => '/etc/sysconfig/ssh',
             'redhat'   => '/etc/sysconfig/sshd',
-            'sles'     => '/etc/sysconfig/sshd',
+            'sles'     => '/etc/sysconfig/ssh',
             'ubuntu'   => '/etc/default/ssh',
             default    => '',
         }
