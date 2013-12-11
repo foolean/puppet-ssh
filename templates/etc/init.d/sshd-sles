@@ -3,7 +3,7 @@
 #
 # Author: Jiri Smid <feedback@suse.de>
 #
-# <%= @@ssh_init %><%= @@suffix %>
+# <%= @ssh_init %><%= @suffix %>
 #
 #   and symbolic its link
 #
