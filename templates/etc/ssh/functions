@@ -76,6 +76,13 @@ end
 
 # versioncmp - Version string comparison
 def versioncmp(version1, version2)
+   if ( ! version1 )
+      err_quit('versioncmp: Missing version string for argument #1')
+   end
+   if ( ! version2 )
+      err_quit('versioncmp: Missing version string for argument #2')
+   end
+
    a1 = version1.split('.').map{|s|s.to_i}
    a2 = version2.split('.').map{|s|s.to_i}
 
