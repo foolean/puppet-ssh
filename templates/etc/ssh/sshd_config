@@ -103,7 +103,11 @@ Banner <%= @banner %>
 #   (e.g. via PAM).  The default is 'yes'.
 #   (beware issues with some PAM modules and threads )
 #   [ Puppet default is: false 'no' ]
+<% if @pamradiusauth -%>
+<%= do_boolean( name, 'ChallengeResponseAuthentication', true ) -%>
+<% else -%>
 <%= do_boolean( name, 'ChallengeResponseAuthentication', @challengresponseauthentication ) -%>
+<% end -%>
 <% if @chrootdirectory -%>
 
 # ChrootDirectory
