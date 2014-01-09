@@ -2,7 +2,7 @@ name    'foolean-ssh'
 version '1.0.17'
 
 author  'bennett@foolean.org'
-summary 'Manage ssh client and multiple daemons'
+summary 'Manage the ssh client and multiple daemons'
 description 'A collection of classes and defines that will manage the ssh
 client and multiple daemons.  Daemon instances are handled by a define which
 can be declared multiple times'
