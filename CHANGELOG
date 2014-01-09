@@ -1,3 +1,10 @@
+2014-01-09 - Bennett Samowich <bennett@foolean.org> - 1.0.18
+- Updated templates to use @var format for variables
+- Fixed typos that created improper defaults file on SLES
+- Added handling for OS and SSH version specific sshd_config options
+- Setting pamradiusauth to true will force ChallengeResponseAuthentication
+  to also be true
+
 2013-11-25 - Bennett Samowich <bennett@foolean.org> - 1.0.17
 - Added OS conditional for PermiBlacklistedKeys option in sshd_config
 
