@@ -18,6 +18,44 @@ Example
         }
     }
 
+    node example2 {
+        # default ssh running on port 22
+        ssh::server { 'ssh': }
+ 
+        # Remove the daemon running on port 222
+        ssh::server { 'defunct':
+            ensure => 'absent',
+            port   => 222,
+        }
+ 
+        # ssh daemon running on port 2222
+        ssh::server { 'internal':
+            port => 2222
+        }
+ 
+        # ssh daemon running on port 22223 which also
+        # permits root to log in.
+        ssh::server { 'special':
+            port            => 22223,
+            permitrootlogin => true,
+        }
+ 
+        # ssh daemon running on port 1234 which uses
+        # the Match directive.
+        ssh::server { 'chroot':
+            port      => 1234,
+            matchuser => {
+                'user1' => {
+                    'ChrootDirectory' => '/home/chroot/user1'
+                },
+                'user2' => {
+                    'ChrootDirectory'    => '/home/chroot/user2',
+                    'AllowTCPForwarding' => 'yes'
+                },
+            }
+        }
+    }
+
 
 About this module
 -----------------
