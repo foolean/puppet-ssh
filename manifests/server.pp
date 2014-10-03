@@ -1496,7 +1496,7 @@ define ssh::server (
                         path     => '/sbin:/usr/sbin:/bin:/usr/bin',
                         command  => $ssh_add_runlevel_cmd,
                         notify   => Service["${sshd_service}${suffix}"],
-                        unless   => "ls /etc/rc2.d/S[0-9][0-9]${sshd_service}",
+                        unless   => "ls ${sshd_rcfile}${suffix}",
                         require  => [
                                 Package['ssh-server-package'],
                                 File["${ssh_init}${suffix}"],
@@ -1569,7 +1569,7 @@ define ssh::server (
                     exec { "del-runlevels-${sshd_service}${suffix}":
                         path    => '/sbin:/usr/sbin:/bin:/usr/bin',
                         command => $ssh_del_runlevel_cmd,
-                        onlyif  => "ls /etc/rc2.d/S[0-9][0-9]${sshd_service}",
+                        onlyif  => "ls ${sshd_rcfile}${suffix}",
                         before  => File["${sshd_config}${suffix}"],
                         require => [
                             File["${ssh_init}${suffix}"],
