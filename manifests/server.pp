@@ -1602,7 +1602,7 @@ define ssh::server (
 
             # Remove this port from selinux
             exec { "del-semanage-port-${port}":
-                path    => [ '/sbin', '/bin' ],
+                path    => [ '/sbin', '/usr/sbin', '/bin', '/usr/bin' ],
                 command => "semanage port -d -t ${seport_context} -p tcp ${port}",
                 onlyif  => "test -f /usr/sbin/semanage && sestatus | grep -i 'enabled' && semanage port -l | grep \"^${seport_context}.*${port}\"",
                 require => [
